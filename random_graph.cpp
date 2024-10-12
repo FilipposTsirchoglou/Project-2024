@@ -5,8 +5,12 @@
 #include <fstream>
 #include <forward_list>
 #include <ctime>
+#include <utility>
+#include <queue>
+
 
 using namespace  std;
+
 
 typedef struct graph_node* GraphNode; // GraphNode is a pointer to struct graph_node
 
@@ -15,6 +19,47 @@ typedef struct graph_node {
     vector<int> cords;
     forward_list<GraphNode> outgoing;               // List of pointers to graph_nodes
 }graph_node;
+
+
+vector<int> vectors_equal(vector<graph_node>& l_closest, vector<graph_node>& visited){
+    bool are_same;
+    vector<int> unvisited = {};
+    for(int i = 0; i < l_closest.size(); i++){
+        are_same = false;
+        for(int j = 0; j < visited.size(); j++){
+            if(l_closest[i].id == visited[j].id){
+                are_same = true;
+                break;
+            }
+        }
+        if (are_same == false){
+            unvisited.push_back(l_closest[i].id);
+        }
+    }
+    return unvisited;
+}
+
+
+
+
+pair<vector<graph_node>, vector<graph_node>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
+    vector<graph_node> l_closest = {s};
+    vector<graph_node> visited = {};
+    vector<int> p = vectors_equal(l_closest, visited);
+    //priority_queue<GraphNode, vector<GraphNode>, compare> 
+
+    while(!p.empty()){
+
+        vector<float> distance = {};
+
+        for (int i=0 ; i<p.size() ; i++) {
+            distance.push_back(euclidean(graph[p[i]].cords, xq.cords));
+        }
+        
+
+    }
+}
+
 
 int get_random_number(int max){
     static bool seeded = false;
@@ -107,6 +152,7 @@ int main(void){
         }
         cout << endl;
     }
-    //file.close();
+    
+
     return 0;
 }
