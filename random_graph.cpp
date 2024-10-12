@@ -17,14 +17,14 @@ typedef struct graph_node {
 }graph_node;
 
 
- 
+
 float euclidean(const vector<int>& p1, const vector<int>& p2){
     
     float dist = 0.0;
 
     for(int i = 0; i < p1.size(); i++){
 
-        float temp = p1[i] - p2[i];
+        int temp = p1[i] - p2[i];
         dist += temp * temp;
     }
 
