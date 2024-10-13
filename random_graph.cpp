@@ -97,11 +97,10 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         }
         visited.push_back(min_id);
 
-        if (l_closest.size() > l) {
+        if (l_closest.size() >= l) {
             sort(l_closest.begin(), l_closest.end(), compare_eucl);
             l_closest.resize(l);
         }
-
         p = vectors_equal(l_closest, visited);
     }
     cout << "After sorting: ";
@@ -215,13 +214,13 @@ int main(void){
     pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[10], 5, 10);
    // cout << "im out ";
     cout << "closest k points from L: ";
-    for (int i=0 ; i<res.first.size() ; i++) {
+    for(int i=0 ; i<res.first.size() ; i++){
         cout << res.first[i]->id << ", ";
     }
 
     cout << endl;
     cout << "visited: ";
-    for  (int i=0 ; i<res.second.size() ; i++) {
+    for (int i=0 ; i<res.second.size() ; i++){
         cout << res.second[i]->id << ", ";
     }
     cout << endl;
