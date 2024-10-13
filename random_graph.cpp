@@ -7,7 +7,8 @@
 #include <ctime>
 #include <utility>
 #include <queue>
-
+#include <algorithm>
+#include <bits/stdc++.h>
 
 using namespace  std;
 
@@ -18,46 +19,98 @@ typedef struct graph_node {
     int id;
     vector<int> cords;
     forward_list<GraphNode> outgoing;               // List of pointers to graph_nodes
+    float eucl_dist = -1.0;
 }graph_node;
 
 
-vector<int> vectors_equal(vector<graph_node>& l_closest, vector<graph_node>& visited){
+vector<GraphNode> vectors_equal(vector<GraphNode>& l_closest, vector<GraphNode>& visited){
+    
     bool are_same;
-    vector<int> unvisited = {};
+    vector<GraphNode> unvisited = {};
     for(int i = 0; i < l_closest.size(); i++){
+      //  cout << "in for in vectros equal" << endl;
         are_same = false;
         for(int j = 0; j < visited.size(); j++){
-            if(l_closest[i].id == visited[j].id){
+            if(l_closest[i] == visited[j]){     
+               // cout << "id found"<< endl;
                 are_same = true;
                 break;
             }
         }
         if (are_same == false){
-            unvisited.push_back(l_closest[i].id);
+           // cout << "inserted id in unvisited"<< endl;
+           //if(l_closest[i]->id != xq.id){
+                unvisited.push_back(l_closest[i]);
+          // }
         }
     }
     return unvisited;
 }
 
 
+float euclidean(const vector<int>& , const vector<int>& );
 
 
-pair<vector<graph_node>, vector<graph_node>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
-    vector<graph_node> l_closest = {s};
-    vector<graph_node> visited = {};
-    vector<int> p = vectors_equal(l_closest, visited);
+
+bool compare_eucl(GraphNode g1, GraphNode g2){
+    return g1->eucl_dist < g2->eucl_dist;
+}
+
+
+pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
+    //cout << "in greedy" << endl;
+    vector<GraphNode> l_closest = {&s};
+    vector<GraphNode> visited = {};
+    vector<GraphNode> p = vectors_equal(l_closest, visited);
     //priority_queue<GraphNode, vector<GraphNode>, compare> 
 
     while(!p.empty()){
-
+       // cout << "in while " << endl;
         vector<float> distance = {};
-
+        vector<GraphNode> pos = {};
+        
         for (int i=0 ; i<p.size() ; i++) {
-            distance.push_back(euclidean(graph[p[i]].cords, xq.cords));
+         //   cout << graph[i].cords[0] << ", " << graph[i].cords[1] << " || " << xq.cords[0] << ", " << xq.cords[1] << endl;
+            p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
+            distance.push_back(p[i]->eucl_dist);
+
+            //distance.push_back(euclidean(graph[p[i]].cords, xq.cords));
+            pos.push_back(p[i]);
         }
         
+        float min=10000;
+        GraphNode min_id;
+        for (int i=0 ; i<distance.size() ; i++) {
+            if (distance[i] < min) {
+                min = distance[i];
+                min_id = pos[i];
+            }
+        }
+        cout << "MIN: " << min << endl;
+        cout << "MIN ID: " << min_id->id << endl;
 
+        for (forward_list<GraphNode>:: iterator it = min_id->outgoing.begin(); it != min_id->outgoing.end(); ++it) {
+            auto cond = find(l_closest.begin(), l_closest.end(), (*it));
+            if ((cond == l_closest.end()) && (*it)->id != xq.id) {
+                l_closest.push_back((*it));   
+            }               
+        }
+        visited.push_back(min_id);
+
+        if (l_closest.size() > l) {
+            sort(l_closest.begin(), l_closest.end(), compare_eucl);
+            l_closest.resize(l);
+        }
+
+        p = vectors_equal(l_closest, visited);
     }
+    cout << "After sorting: ";
+    for(int i = 0; i < l_closest.size(); i++){
+        cout << l_closest[i]->eucl_dist << ", " << l_closest[i]->id << "|| ";
+    }
+    cout << endl;
+    l_closest.resize(k);
+    return {l_closest, visited};
 }
 
 
@@ -81,9 +134,15 @@ float euclidean(const vector<int>& p1, const vector<int>& p2){
         int temp = p1[i] - p2[i];
         dist += temp * temp;
     }
+    
 
     return sqrt(dist);
 }
+
+
+
+
+
 
 int main(void){
 
@@ -152,7 +211,19 @@ int main(void){
         }
         cout << endl;
     }
-    
 
+    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[10], 5, 10);
+   // cout << "im out ";
+    cout << "closest k points from L: ";
+    for (int i=0 ; i<res.first.size() ; i++) {
+        cout << res.first[i]->id << ", ";
+    }
+
+    cout << endl;
+    cout << "visited: ";
+    for  (int i=0 ; i<res.second.size() ; i++) {
+        cout << res.second[i]->id << ", ";
+    }
+    cout << endl;
     return 0;
 }
