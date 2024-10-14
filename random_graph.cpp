@@ -9,6 +9,7 @@
 #include <queue>
 #include <algorithm>
 #include <bits/stdc++.h>
+#include <queue>
 
 using namespace  std;
 
@@ -22,6 +23,12 @@ typedef struct graph_node {
     float eucl_dist = -1.0;
 }graph_node;
 
+struct CompareDistance {
+    bool operator()(GraphNode p1, GraphNode p2) {
+        // Return true if p1 has higher distance, so it has lower priority
+        return p1->eucl_dist > p2->eucl_dist;
+    }
+};
 
 /*FUNCTION PROTOTYPES*/
 vector<GraphNode> vectors_equal(vector<GraphNode>&, vector<GraphNode>&);
@@ -157,14 +164,17 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     while(!p.empty()){
         vector<float> distance = {};
         vector<GraphNode> pos = {};
+
+        priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;
         
         for (int i=0 ; i<p.size() ; i++) {
             p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
-            distance.push_back(p[i]->eucl_dist);
-            pos.push_back(p[i]);
+            pq.push(p[i]);
+            //distance.push_back(p[i]->eucl_dist);
+            //pos.push_back(p[i]);
         }
         
-        float min=10000;
+        /*float min=10000;
         GraphNode min_id;
 
         for (int i=0 ; i<distance.size() ; i++) {
@@ -172,12 +182,12 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
                 min = distance[i];
                 min_id = pos[i];
             }
-        }
+        }*/
+       GraphNode p_star = pq.top();
+        cout << "MIN: " << p_star->eucl_dist << endl;
+        cout << "MIN ID: " << p_star->id << endl;
 
-        cout << "MIN: " << min << endl;
-        cout << "MIN ID: " << min_id->id << endl;
-
-        for (forward_list<GraphNode>:: iterator it = min_id->outgoing.begin(); it != min_id->outgoing.end(); ++it) {
+        for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));
 
             if ((cond == l_closest.end()) && (*it)->id != xq.id) {
@@ -185,7 +195,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
             }               
         }
 
-        visited.push_back(min_id);
+        visited.push_back(p_star);
 
         if (l_closest.size() >= l) {
             sort(l_closest.begin(), l_closest.end(), compare_eucl);
