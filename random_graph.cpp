@@ -18,8 +18,8 @@ typedef struct graph_node* GraphNode; // GraphNode is a pointer to struct graph_
 
 typedef struct graph_node {
     int id;
-    vector<int> cords;
-    forward_list<GraphNode> outgoing;               // List of pointers to graph_nodes
+    vector<float> cords;
+    forward_list<GraphNode> outgoing = {};               // List of pointers to graph_nodes
     float eucl_dist = -1.0;
 }graph_node;
 
@@ -63,7 +63,7 @@ vector<GraphNode> vectors_equal(vector<GraphNode>& l_closest, vector<GraphNode>&
 }
 
 
-float euclidean(const vector<int>& p1, const vector<int>& p2){    
+float euclidean(const vector<float>& p1, const vector<float>& p2){    
     float dist = 0.0;
 
     for(int i = 0; i < p1.size(); i++){
@@ -93,7 +93,7 @@ int get_random_number(int max){
 
 
 int create_random_graph(vector<graph_node>& graph, int r){
-    ifstream file("inputfile");
+    /*ifstream file("inputfile");
 
     if(!file.is_open()){
         cerr << "Error opening file!" << endl;
@@ -115,8 +115,49 @@ int create_random_graph(vector<graph_node>& graph, int r){
         i++;
     }
 
+    file.close();*/
+    ifstream file("siftsmall/siftsmall_base.fvecs", ios::binary);
+
+    if (!file) {
+        cout << "Can't open file" << endl;
+        return -1;
+    }
+
+    vector<vector<float>> all_points;
+
+    while (!file.eof()){
+
+        int dimension;
+
+        file.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimensions
+
+        if(file.eof()) break;
+
+        vector<float> point(dimension);
+
+        file.read(reinterpret_cast<char*>(point.data()), dimension * sizeof(float));
+
+        all_points.push_back(point);
+      
+    }
     file.close();
 
+   /* cout << "number of points: " << all_points.size()<< endl;
+    cout << "1st vector data: ";
+    vector<float> first = all_points[0];
+    for (int i=0 ; i<all_points[0].size(); i++) {
+        cout << first[i] << ", ";
+    }
+    cout << endl;*/
+
+    for(int i = 0; i < all_points.size(); i++){
+        graph_node g;
+        g.id = i;
+        g.cords = all_points[i];
+        graph.push_back(g);
+    }
+    
+//////////////////////////////////////////////////////////////////////////////////////////////////
     for(int i = 0; i < graph.size(); i++){
     int counter=0;      // Counter for counting correct outgoing connections for every graph node
 
@@ -184,8 +225,8 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
             }
         }*/
        GraphNode p_star = pq.top();
-        cout << "MIN: " << p_star->eucl_dist << endl;
-        cout << "MIN ID: " << p_star->id << endl;
+        //cout << "MIN: " << p_star->eucl_dist << endl;
+        //cout << "MIN ID: " << p_star->id << endl;
 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));
@@ -205,13 +246,13 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         p = vectors_equal(l_closest, visited);
     }
 
-    cout << "After sorting: ";
+    /*cout << "After sorting: ";
 
     for(int i = 0; i < l_closest.size(); i++){
         cout << l_closest[i]->eucl_dist << ", " << l_closest[i]->id << "|| ";
     }
 
-    cout << endl;
+    cout << endl;*/
     l_closest.resize(k);
 
     return {l_closest, visited};
@@ -223,11 +264,11 @@ int main(void){
 
     vector<graph_node> graph;
 
-    int flag = create_random_graph(graph, 3);
+    int flag = create_random_graph(graph, 13);
     if (flag) return 1;                             // Case of error in file opening
 
     /*temporary code for prinitng the graph*/
-    for(int i = 0; i < graph.size(); i++){
+    /*for(int i = 0; i < graph.size(); i++){
         cout << "Id: " << graph[i].id << "-->";
 
         for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it){
@@ -238,7 +279,7 @@ int main(void){
     }
     /*-------------------------------------*/
 
-    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[10], 5, 10);
+    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[1000], 10, 100);
 
     /*temporary code for printing result*/
     cout << "closest k points from L: ";
@@ -247,10 +288,10 @@ int main(void){
     }
 
     cout << endl;
-    cout << "visited: ";
-    for (int i=0 ; i<res.second.size() ; i++){
+    cout << "size of visited: " << res.second.size();
+    /*for (int i=0 ; i<res.second.size() ; i++){
         cout << res.second[i]->id << ", ";
-    }
+    }*/
     cout << endl;
     /*-----------------------------------*/
 
