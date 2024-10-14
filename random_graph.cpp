@@ -85,7 +85,69 @@ int get_random_number(int max){
 }
 
 
+int create_random_graph(vector<graph_node>& graph, int r){
+    ifstream file("inputfile");
 
+    if(!file.is_open()){
+        cerr << "Error opening file!" << endl;
+        return 1;
+    }
+
+    int c1, c2;
+    int i = 0;
+
+    while(file >> c1 >> c2){
+        graph_node g;
+        vector<int> cords;
+        cords.push_back(c1);
+        cords.push_back(c2);                  // Getting the vector cords
+        g.id = i;
+        g.cords = cords;
+        g.outgoing = {};                      // Initializing a graph node
+        graph.push_back(g);
+        i++;
+    }
+
+    file.close();
+
+    for(int i = 0; i < graph.size(); i++){
+    int counter=0;      // Counter for counting correct outgoing connections for every graph node
+
+        do{
+           int edge_to_id = get_random_number(graph.size() - 1);
+
+           if(edge_to_id != graph[i].id){             // If the id we want to connect is not the same as the source node id
+                                                    
+                if(graph[i].outgoing.empty()){              // If the list is empty do the connection
+                    GraphNode edge = &graph[edge_to_id];   
+                    graph[i].outgoing.push_front(edge);
+                    counter++;
+                }
+                else{
+                    bool flag=true; //Flag that shows the id of the node we want to connect does not already exist
+
+                    for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it){
+
+                        if((*it)->id == edge_to_id){ // The id already exists 
+                            flag=false;
+                            break;
+                        }
+                    }
+
+                    if(flag==true){
+                        GraphNode edge = &graph[edge_to_id];   
+                        graph[i].outgoing.push_front(edge);
+                        counter++;
+                    }
+
+                }
+           }
+        } while(counter !=r);  // 3 is the parameter R. If we did R connections we stop
+    }
+    
+    file.close();
+    return 0;
+}
 
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
     vector<GraphNode> l_closest = {&s};
@@ -151,64 +213,10 @@ int main(void){
 
     vector<graph_node> graph;
 
-    ifstream file("inputfile");
+    int flag = create_random_graph(graph, 3);
+    if (flag) return 1;
 
-    if(!file.is_open()){
-        cerr << "Error opening file!" << endl;
-        return 1;
-    }
-
-    int c1, c2;
-    int i = 0;
-
-    while(file >> c1 >> c2){
-        graph_node g;
-        vector<int> cords;
-        cords.push_back(c1);
-        cords.push_back(c2);                  // Getting the vector cords
-        g.id = i;
-        g.cords = cords;
-        g.outgoing = {};                      // Initializing a graph node
-        graph.push_back(g);
-        i++;
-    }
-    file.close();
-
-    for(int i = 0; i < graph.size(); i++){
-        int counter=0;      // Counter for counting correct outgoing connections for every graph node
-
-        do{
-           int edge_to_id = get_random_number(graph.size() - 1);
-
-           if(edge_to_id != graph[i].id){   
-                                                    // If the id we want to connect is not the same as the source node id
-                if(graph[i].outgoing.empty()){              // If the list is empty do the connection
-                    GraphNode edge = &graph[edge_to_id];   
-                    graph[i].outgoing.push_front(edge);
-                    counter++;
-                }
-                else{
-                    bool flag=true; //Flag that shows the id of the node we want to connect does not already exist
-
-                    for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it){
-
-                        if((*it)->id == edge_to_id){ // The id already exists 
-                            flag=false;
-                            break;
-                        }
-                    }
-
-                    if(flag==true){
-                        GraphNode edge = &graph[edge_to_id];   
-                        graph[i].outgoing.push_front(edge);
-                        counter++;
-                    }
-
-                }
-           }
-        } while(counter !=3);  // 3 is the parameter R. If we did R connections we stop
-    }
-
+    /*temporary code for prinitng the graph*/
     for(int i = 0; i < graph.size(); i++){
         cout << "Id: " << graph[i].id << "-->";
 
@@ -218,9 +226,11 @@ int main(void){
 
         cout << endl;
     }
+    /*-------------------------------------*/
 
     pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[10], 5, 10);
 
+    /*temporary code for printing result*/
     cout << "closest k points from L: ";
     for(int i=0 ; i<res.first.size() ; i++){
         cout << res.first[i]->id << ", ";
@@ -232,6 +242,7 @@ int main(void){
         cout << res.second[i]->id << ", ";
     }
     cout << endl;
+    /*-----------------------------------*/
 
     return 0;
 }
