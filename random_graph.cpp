@@ -99,12 +99,12 @@ int create_random_graph(vector<graph_node>& graph, int r){
     while(file >> c1 >> c2){
         graph_node g;
         vector<int> cords;
-        cords.push_back(c1);
-        cords.push_back(c2);                  // Getting the vector cords
-        g.id = i;
-        g.cords = cords;
-        g.outgoing = {};                      // Initializing a graph node
-        graph.push_back(g);
+        cords.push_back(c1);                  // Getting the vector cords
+        cords.push_back(c2);                  // 
+        g.id = i;                             //
+        g.cords = cords;                      // Initializing a graph node
+        g.outgoing = {};                      // 
+        graph.push_back(g);                   //
         i++;
     }
 
@@ -142,7 +142,7 @@ int create_random_graph(vector<graph_node>& graph, int r){
 
                 }
            }
-        } while(counter !=r);  // 3 is the parameter R. If we did R connections we stop
+        } while(counter !=r);  // If we did r connections we stop
     }
     
     file.close();
@@ -214,7 +214,7 @@ int main(void){
     vector<graph_node> graph;
 
     int flag = create_random_graph(graph, 3);
-    if (flag) return 1;
+    if (flag) return 1;                             // Case of error in file opening
 
     /*temporary code for prinitng the graph*/
     for(int i = 0; i < graph.size(); i++){
