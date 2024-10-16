@@ -10,13 +10,14 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include <queue>
+#include "temp_header.h"
 
 using namespace  std;
 
 /*STRUCTS*/
-typedef struct graph_node* GraphNode; // GraphNode is a pointer to struct graph_node
+//typedef struct graph_node* GraphNode; // GraphNode is a pointer to struct graph_node
 
-typedef struct graph_node {
+/*typedef struct graph_node {
     int id;
     vector<float> cords;
     forward_list<GraphNode> outgoing = {};               // List of pointers to graph_nodes
@@ -28,18 +29,18 @@ struct CompareDistance {
         // Return true if p1 has higher distance, so it has lower priority
         return p1->eucl_dist > p2->eucl_dist;
     }
-};
+};*/
 
 /*FUNCTION PROTOTYPES*/
-vector<GraphNode> vectors_equal(vector<GraphNode>&, vector<GraphNode>&);
+//vector<GraphNode> vectors_equal(vector<GraphNode>&, vector<GraphNode>&);
 
-float euclidean(const vector<int>& , const vector<int>& );
+//float euclidean(const vector<float>& , const vector<float>& );
 
-bool compare_eucl(GraphNode, GraphNode);
+//bool compare_eucl(GraphNode, GraphNode);
 
-int get_random_number(int);
+//int get_random_number(int);
 
-pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, graph_node&, graph_node&, int, int);
+//pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, graph_node&, graph_node&, int, int);
 
 
 /*FUNCTION CODE*/
