@@ -79,6 +79,7 @@ float euclidean(const vector<float>& p1, const vector<float>& p2){
 
 
 bool compare_eucl(GraphNode g1, GraphNode g2){
+    
     return g1->eucl_dist < g2->eucl_dist;
 }
 
@@ -235,6 +236,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));
 
             if ((cond == l_closest.end()) && (*it)->id != xq.id) {
+                (*it)->eucl_dist = euclidean((*it)->cords, xq.cords); // re-compute in case of eucl_dist = -1
                 l_closest.push_back((*it));   
             }               
         }
@@ -242,11 +244,21 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         visited.push_back(p_star);
 
         if (l_closest.size() >= l) {
+            cout << " IN RESIZE" << endl;
             sort(l_closest.begin(), l_closest.end(), compare_eucl);
             l_closest.resize(l);
         }
+        cout << "l-closest print" << endl;
+        for(int i = 0; i < l_closest.size(); i++){
+            cout << l_closest[i]->id << endl;
+        }
 
         p = vectors_equal(l_closest, visited);
+        cout << " vectors equal print" << endl;
+        for(int i = 0; i < p.size(); i++){
+            cout << p[i]->id  << endl;
+        }
+        cout << endl;
     }
 
     /*cout << "After sorting: ";
@@ -321,9 +333,9 @@ int main(void){
     }
     /*-------------------------------------*/
 
-    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[200], 10, 100);
+    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[100], graph[1000], 10, 100);
 
-    robust_prune(&graph[200], res.second, 10, 30);
+    robust_prune(&graph[1000], res.second, 10, 30);
 
     cout << "v size: " << res.second.size() << endl;
 
