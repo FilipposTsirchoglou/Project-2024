@@ -97,29 +97,7 @@ int get_random_number(int max){
 
 
 int create_random_graph(vector<graph_node>& graph, int r){
-    /*ifstream file("inputfile");
-
-    if(!file.is_open()){
-        cerr << "Error opening file!" << endl;
-        return 1;
-    }
-
-    int c1, c2;
-    int i = 0;
-
-    while(file >> c1 >> c2){
-        graph_node g;
-        vector<int> cords;
-        cords.push_back(c1);                  // Getting the vector cords
-        cords.push_back(c2);                  // 
-        g.id = i;                             //
-        g.cords = cords;                      // Initializing a graph node
-        g.outgoing = {};                      // 
-        graph.push_back(g);                   //
-        i++;
-    }
-
-    file.close();*/
+    
     ifstream file("siftsmall/siftsmall_base.fvecs", ios::binary);
 
     if (!file) {
@@ -146,13 +124,7 @@ int create_random_graph(vector<graph_node>& graph, int r){
     }
     file.close();
 
-   /* cout << "number of points: " << all_points.size()<< endl;
-    cout << "1st vector data: ";
-    vector<float> first = all_points[0];
-    for (int i=0 ; i<all_points[0].size(); i++) {
-        cout << first[i] << ", ";
-    }
-    cout << endl;*/
+  
 
     for(int i = 0; i < all_points.size(); i++){
         graph_node g;
@@ -213,24 +185,15 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;
         
         for (int i=0 ; i<p.size() ; i++) {
+           
             p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);             // MAKE IT A FUNTION FIND_MIN_EUCL
             pq.push(p[i]);
-            //distance.push_back(p[i]->eucl_dist);
-            //pos.push_back(p[i]);
+           
         }
         
-        /*float min=10000;
-        GraphNode min_id;
-
-        for (int i=0 ; i<distance.size() ; i++) {
-            if (distance[i] < min) {
-                min = distance[i];
-                min_id = pos[i];
-            }
-        }*/
+      
        GraphNode p_star = pq.top();
-        //cout << "MIN: " << p_star->eucl_dist << endl;
-        //cout << "MIN ID: " << p_star->id << endl;
+      
 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));
@@ -244,30 +207,25 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         visited.push_back(p_star);
 
         if (l_closest.size() >= l) {
-            cout << " IN RESIZE" << endl;
+            
             sort(l_closest.begin(), l_closest.end(), compare_eucl);
             l_closest.resize(l);
+
         }
-        cout << "l-closest print" << endl;
+        
         for(int i = 0; i < l_closest.size(); i++){
             cout << l_closest[i]->id << endl;
         }
 
         p = vectors_equal(l_closest, visited);
-        cout << " vectors equal print" << endl;
+        
         for(int i = 0; i < p.size(); i++){
             cout << p[i]->id  << endl;
         }
         cout << endl;
     }
 
-    /*cout << "After sorting: ";
-
-    for(int i = 0; i < l_closest.size(); i++){
-        cout << l_closest[i]->eucl_dist << ", " << l_closest[i]->id << "|| ";
-    }
-
-    cout << endl;*/
+   
     l_closest.resize(k);
 
     return {l_closest, visited};
@@ -275,18 +233,23 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
 void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
     auto found_at_pos = find(v.begin(), v.end(), p);
+    
     if (found_at_pos != v.end()) v.erase(found_at_pos);
-
+   
     for (forward_list<GraphNode>:: iterator it = p->outgoing.begin() ; it != p->outgoing.end() ; ++it) {
         auto cond = find(v.begin(), v.end(), (*it));
-        if (cond == v.end()) {
+        
+        if (cond == v.end()) {           
             v.push_back((*it));
+            
         }
     }                   //V ← (V ∪ Nout(p)) \ {p}
-
+    
     p->outgoing.clear();    //Nout(p) ← ∅
+    
 
     while (!v.empty()) {
+        
         priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;
         
         for (int i=0 ; i<v.size() ; i++) {
@@ -300,19 +263,29 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 
         p->outgoing.push_front(p_star);        // Nout(p) ← Nout(p) ∪ {p_star}
 
+
+
         int list_size = distance(p->outgoing.begin(), p->outgoing.end()); 
         if (list_size == r){
-            cout << "nout size: " << list_size <<endl; 
+           
             break;
         }
 
-        for (auto it = v.begin(); it != v.end(); ++it){
-            if (a * euclidean(p_star->cords, (*it)->cords) < (*it)->eucl_dist){     //if mistake, LOOK HERE
-                v.erase((it));
+        for (auto it = v.begin(); it != v.end();){
+            
+            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)){     //SHOULD BE <=
+                
+                v.erase(it);
+            
+            } else {
+                ++it;
             }
         }
     }
 }
+
+
+
 /*MAIN FUNCTION*/
 int main(void){
 
@@ -321,17 +294,7 @@ int main(void){
     int flag = create_random_graph(graph, 20);
     if (flag) return 1;                             // Case of error in file opening
 
-    /*temporary code for prinitng the graph*/
-    /*for(int i = 0; i < graph.size(); i++){
-        cout << "Id: " << graph[i].id << "-->";
-
-        for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it){
-            cout << (*it)->id << " ";
-        }
-
-        cout << endl;
-    }
-    /*-------------------------------------*/
+    
 
     pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[100], graph[1000], 10, 100);
 
@@ -339,20 +302,10 @@ int main(void){
 
     cout << "v size: " << res.second.size() << endl;
 
-    /*temporary code for printing result*/
-    /*
-    cout << "closest k points from L: ";
-    for(int i=0 ; i<res.first.size() ; i++){
-        cout << res.first[i]->id << ", ";
-    }
+    
 
-    cout << endl;
-    cout << "size of visited: " << res.second.size();
-    /*for (int i=0 ; i<res.second.size() ; i++){
-        cout << res.second[i]->id << ", ";
-    }*/
     cout << endl; 
-    /*-----------------------------------*/
+  
 
     return 0;
 }
