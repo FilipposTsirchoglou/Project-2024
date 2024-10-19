@@ -72,22 +72,11 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         for (int i=0 ; i<p.size() ; i++) {
             p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);             // MAKE IT A FUNTION FIND_MIN_EUCL
             pq.push(p[i]);
-            //distance.push_back(p[i]->eucl_dist);
-            //pos.push_back(p[i]);
+            
         }
         
-        /*float min=10000;
-        GraphNode min_id;
 
-        for (int i=0 ; i<distance.size() ; i++) {
-            if (distance[i] < min) {
-                min = distance[i];
-                min_id = pos[i];
-            }
-        }*/
        GraphNode p_star = pq.top();
-        //cout << "MIN: " << p_star->eucl_dist << endl;
-        //cout << "MIN ID: " << p_star->id << endl;
 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));
@@ -100,31 +89,72 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         visited.push_back(p_star);
 
         if (l_closest.size() >= l) {
-            cout << "IN RESIZE" << endl;
             sort(l_closest.begin(), l_closest.end(), compare_eucl);
             l_closest.resize(l);
         }
-        cout << "l-closest print" << endl;
-        for(int i = 0; i < l_closest.size(); i++){
-            cout << l_closest[i]->id << endl;
-        }
 
         p = vectors_equal(l_closest, visited);
-        cout << " vectors equal print" << endl;
-        for(int i = 0; i < p.size(); i++){
-            cout << p[i]->id;
-        }
-        cout << endl;
+        
     }
 
-    /*cout << "After sorting: ";
-
-    for(int i = 0; i < l_closest.size(); i++){
-        cout << l_closest[i]->eucl_dist << ", " << l_closest[i]->id << "|| ";
-    }
-
-    cout << endl;*/
     l_closest.resize(k);
 
     return {l_closest, visited};
+}
+
+
+
+
+void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
+    auto found_at_pos = find(v.begin(), v.end(), p);
+    
+    if (found_at_pos != v.end()) v.erase(found_at_pos);
+    
+    for (forward_list<GraphNode>:: iterator it = p->outgoing.begin() ; it != p->outgoing.end() ; ++it) {
+        auto cond = find(v.begin(), v.end(), (*it));
+        
+        if (cond == v.end()) {
+            v.push_back((*it));
+        }
+    }                   //V ← (V ∪ Nout(p)) \ {p}
+   
+
+    p->outgoing.clear();    //Nout(p) ← ∅
+    
+
+    while (!v.empty()) {
+        
+        priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;
+        
+        for (int i=0 ; i<v.size() ; i++) {
+            
+            v[i]->eucl_dist = euclidean(v[i]->cords, p->cords);             // MAKE IT A FUNTION FIND_MIN_EUCL
+            pq.push(v[i]);
+            
+        }
+        
+        GraphNode p_star = pq.top();           // p_star <- min apostasi
+
+        p->outgoing.push_front(p_star);        // Nout(p) ← Nout(p) ∪ {p_star}
+
+
+        int list_size = distance(p->outgoing.begin(), p->outgoing.end());        
+        if (list_size == r){
+            
+            break;
+        }
+
+        for (auto it = v.begin(); it != v.end();){
+
+            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)){     //if mistake, LOOK HERE
+               
+                v.erase(it);
+                
+            } else {
+                ++it;
+            }
+
+
+        }
+    }
 }
