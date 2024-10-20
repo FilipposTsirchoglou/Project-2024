@@ -160,14 +160,14 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 }
 
 GraphNode find_medoid(vector<graph_node>& graph){
-    float min_eucl = 1000000;
-    int min_pos;
+    float min_eucl = 1000000;           //something very big 
+    int min_pos;                        //position of minimum sum
 
     for(int i=0 ; i<graph.size() ; i++) {
         float eucl=0;
         for (int j=0 ; j<graph.size() ; j++) {
-            if (i==j) continue;
-            eucl += euclidean(graph[i].cords, graph[j].cords);
+            if (i==j) continue;                 //dont calculate the distances between the point and its self
+            eucl += euclidean(graph[i].cords, graph[j].cords);          //sum of distances 
         }
         //cout << "sum_eucl: " << eucl << endl;
         if (eucl < min_eucl) {
@@ -181,5 +181,5 @@ GraphNode find_medoid(vector<graph_node>& graph){
     GraphNode medoid = &graph[min_pos];
     //cout << "medoid: " << medoid << endl;
 
-    return medoid;
+    return medoid;              //return pointer to the graphnode with the minimum sum of distances
 }

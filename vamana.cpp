@@ -302,7 +302,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
                 
                 v.erase(it);
             
-            } else {
+            } else {            //only increment the iterator if erase didnt happen beacuse of  segfault
                 ++it;
             }
         }
