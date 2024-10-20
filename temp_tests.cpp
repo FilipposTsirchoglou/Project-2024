@@ -241,13 +241,58 @@ void test_robust_prune(){
     TEST_ASSERT((node1 == &graph[7]) && (node2 == &graph[8]));
 
 }
-        
 
+void test_find_medoid(){
+
+    vector<graph_node> graph;
+
+    graph_node g0;
+    g0.id = 0;
+    g0.cords = {7.2,8.31};
+    g0.eucl_dist = -1;
+    graph.push_back(g0);
+
+    graph_node g1;
+    g1.id = 1;
+    g1.cords = {5.19,3.09};
+    g1.eucl_dist = -1;
+    graph.push_back(g1);
+
+    graph_node g2;
+    g2.id = 2;
+    g2.cords = {0.04,6.39};
+    g2.eucl_dist = -1;
+    graph.push_back(g2);
+
+    graph_node g3;
+    g3.id = 3;
+    g3.cords = {1.49,0.50};
+    g3.eucl_dist = -1;
+    graph.push_back(g3);
+
+    graph_node g4;
+    g4.id = 4;
+    g4.cords = {1.75,4.71};
+    g4.eucl_dist = -1;
+    graph.push_back(g4);
+
+    //vector<graph_node> g = {graph[0], graph[1], graph[2], graph[3], graph[4]};
+
+
+    GraphNode res = find_medoid(graph);
+    //cout << "res: " << res << ", " << &g[4] <<endl;
+
+    TEST_ASSERT(res == &graph[4]);
+    //return medoid;
+}
+        
 
 TEST_LIST = {
 	{ "test_euclidean", test_euclidean },
 	{ "test_get_random_number", test_get_random_number },
     { "test_greedy_search", test_greedy_search},
     { "test_robust_prune", test_robust_prune},
+    { "test_find_medoid", test_find_medoid},
 	{ NULL, NULL }
 };
+

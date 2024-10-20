@@ -173,6 +173,31 @@ int create_random_graph(vector<graph_node>& graph, int r){
     return 0;
 }
 
+GraphNode find_medoid(vector<graph_node>& graph){
+    float min_eucl = 1000000;
+    int min_pos;
+
+    for(int i=0 ; i<graph.size() ; i++) {
+        float eucl=0;
+        for (int j=0 ; j<graph.size() ; j++) {
+            if (i==j) continue;
+            eucl += euclidean(graph[i].cords, graph[j].cords);
+        }
+        //cout << "sum_eucl: " << eucl << endl;
+        if (eucl < min_eucl) {
+            min_eucl = eucl;
+            //cout << "new min_eucl: " << min_eucl << endl;
+            min_pos = i;
+        }
+    }
+   // cout << "pos: " << min_pos << endl;
+   // cout << "graph[4] " << &graph[4] << endl;
+    GraphNode medoid = &graph[min_pos];
+   // cout << "medoid: " << medoid << endl;
+
+    return medoid;
+}
+
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
     vector<GraphNode> l_closest = {&s};
     vector<GraphNode> visited = {};
@@ -273,7 +298,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 
         for (auto it = v.begin(); it != v.end();){
             
-            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)){     //SHOULD BE <=
+            if (a * euclidean(p_star->cords, (*it)->cords) < euclidean((*it)->cords, p->cords)){     //SHOULD BE <=
                 
                 v.erase(it);
             
