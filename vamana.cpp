@@ -174,7 +174,7 @@ int create_random_graph(vector<graph_node>& graph, int r){
 }
 
 GraphNode find_medoid(vector<graph_node>& graph){
-    float min_eucl = 1000000;
+    float min_eucl = INFINITY;
     int min_pos;
 
     for(int i=0 ; i<graph.size() ; i++) {
@@ -197,6 +197,17 @@ GraphNode find_medoid(vector<graph_node>& graph){
 
     return medoid;
 }
+
+vector<int> give_random_permutation(int size) {
+    vector<int> sigma;
+
+    for (int i=0 ; i<size ; i++) {
+        sigma.push_back(i);
+    }
+    random_shuffle(sigma.begin(), sigma.end());
+    return sigma;
+}
+
 
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l){
     vector<GraphNode> l_closest = {&s};
@@ -238,16 +249,16 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
         }
         
-        for(int i = 0; i < l_closest.size(); i++){
+       /* for(int i = 0; i < l_closest.size(); i++){
             cout << l_closest[i]->id << endl;
-        }
+        } */
 
         p = vectors_equal(l_closest, visited);
         
-        for(int i = 0; i < p.size(); i++){
+        /*for(int i = 0; i < p.size(); i++){
             cout << p[i]->id  << endl;
-        }
-        cout << endl;
+        }*/
+        //cout << endl;
     }
 
    
@@ -313,23 +324,64 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 
 /*MAIN FUNCTION*/
 int main(void){
+    const unsigned int L=100;
+    const unsigned int R=30;
+    const unsigned int a=10;
 
     vector<graph_node> graph;
 
-    int flag = create_random_graph(graph, 20);
+    int flag = create_random_graph(graph, R);
     if (flag) return 1;                             // Case of error in file opening
 
+    vector<int> sigma = give_random_permutation(graph.size());
+
+    /*for (int i=0 ; i<sigma.size() ; i++) {
+        for (int j=0 ; j<sigma.size() ; j++) {
+            if ((sigma[i] == sigma[j]) && (i!=j)) {
+                cout << "AAAAAAAAAAAAA" << endl;
+            }
+        }
+        if ((sigma[i] == 9999) || (sigma[i] == 0)) cout << " sigma [i]: " << sigma[i] << endl;
+    }*/
+
+    GraphNode s = find_medoid(graph);   
+    cout << "done";
+
+    for (int i = 0; i < sigma.size(); i++){    
+        cout << "i: " << i <<endl;
+        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
+        vector<GraphNode> v = res.second;
+        
+        robust_prune(&graph[sigma[i]], v, a, R);
+        
+        for (auto it = graph[sigma[i]].outgoing.begin(); it != graph[sigma[i]].outgoing.end(); ++it) {
+            
+            vector<GraphNode> temp_vec;
+            
+            for (auto it2 = (*it)->outgoing.begin(); it2 != (*it)->outgoing.end(); ++it2) {
+                //cout << (*it2)->id << " , ";
+                temp_vec.push_back((*it2));
+            }
+            temp_vec.push_back(&graph[sigma[i]]);
+            
+            if (temp_vec.size() > R) {
+                robust_prune((*it), temp_vec, a, R);
+            }
+            else{
+                (*it)->outgoing.push_front(&graph[sigma[i]]);
+            }
+        }
+    }
+
+
+
+
+
+    //cout << "v size: " << res.second.size() << endl;
+
     
 
-    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[100], graph[1000], 10, 100);
-
-    robust_prune(&graph[1000], res.second, 10, 30);
-
-    cout << "v size: " << res.second.size() << endl;
-
-    
-
-    cout << endl; 
+   // cout << endl; 
   
 
     return 0;

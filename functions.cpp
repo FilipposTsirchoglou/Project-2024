@@ -160,7 +160,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 }
 
 GraphNode find_medoid(vector<graph_node>& graph){
-    float min_eucl = 1000000;           //something very big 
+    float min_eucl = INFINITY;           //something very big 
     int min_pos;                        //position of minimum sum
 
     for(int i=0 ; i<graph.size() ; i++) {
@@ -182,4 +182,16 @@ GraphNode find_medoid(vector<graph_node>& graph){
     //cout << "medoid: " << medoid << endl;
 
     return medoid;              //return pointer to the graphnode with the minimum sum of distances
+}
+
+vector<int> random_permetuation(vector<int> sigma) {
+
+    random_shuffle(sigma.begin(), sigma.end());
+
+    for (int i=0 ; i<sigma.size() ; i++) {
+        cout << sigma[i] << " ,";
+    }
+    cout << endl;
+
+    return sigma;
 }
