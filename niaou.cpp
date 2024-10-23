@@ -14,7 +14,7 @@
 
 using namespace std;
 
-bool equal(vector<float>& v1,vector<float>& v2 ) {
+/*bool equal(vector<float>& v1,vector<float>& v2 ) {
     //cout << "eq" << endl;
     for (int i=0 ; i<v1.size() ; i++) {
         cout << v1[i] << " " << v2[i] << endl;
@@ -22,7 +22,7 @@ bool equal(vector<float>& v1,vector<float>& v2 ) {
     }
  
     return true;
-}
+}*/
 
 int main() {
 
@@ -79,25 +79,31 @@ int main() {
       
     }
     file1.close();
-    cout  << all_points.size();
+    //cout  << all_points.size();
+
+    for (int i = 0 ; i<q_points.size() ; i++) {
+        for (int j=0 ; j<q_points[i].size() ; j++) {
+            cout << q_points[i][j] << " ";
+        }
+        cout << endl << endl;
+    }
+    cout << endl;
 
     
     int count = 0;
     for (int i = 0 ; i<q_points.size() ; i++) {
         bool flag = false;
         for (int j=0 ; j<all_points.size() ; j++) {
-            if (equal(q_points[i], all_points[j])) {
-                cout << "kk"<<endl;
-                flag = true;
+            if (equal(q_points[i].begin(), q_points[i].end(), all_points[j].begin())) {
+                cout << i << " and " << j << " EQUAL " << endl;
+            } else {
+              // cout << "not equal" << endl;
                 count++;
-                break;
-            }          
+            }
+                //flag = true;
+                //count++;
+                //break;        
         }
     }
-
     cout << count << endl;
-
-
-
-
 }

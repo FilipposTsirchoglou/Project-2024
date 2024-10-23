@@ -27,7 +27,7 @@ vector<GraphNode> vectors_equal(vector<GraphNode>& l_closest, vector<GraphNode>&
 
 
 
-float euclidean(const vector<float>& p1, const vector<float>& p2){    
+double euclidean(const vector<float>& p1, const vector<float>& p2){    
     float dist = 0.0;
 
     for(int i = 0; i < p1.size(); i++){
@@ -146,7 +146,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 
         for (auto it = v.begin(); it != v.end();){
 
-            if (a * euclidean(p_star->cords, (*it)->cords) < euclidean((*it)->cords, p->cords)){     //if mistake, LOOK HERE
+            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)){     //if mistake, LOOK HERE
                
                 v.erase(it);
                 

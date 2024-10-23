@@ -23,7 +23,7 @@ typedef struct graph_node {
     int id;                                     // Node's unique id
     vector<float> cords;                        // Each node has a vector. These are the vector's cords
     forward_list<GraphNode> outgoing = {};      // List of pointers to graph_nodes
-    float eucl_dist = -1.0;                     // The euclidean distance between the nodes' vector to a query vector
+    double eucl_dist = -1.0;                     // The euclidean distance between the nodes' vector to a query vector
 }graph_node;
 
 
@@ -44,7 +44,7 @@ vector<GraphNode> vectors_equal(vector<GraphNode>&, vector<GraphNode>&);
 
 
 // Returns the euclidean distance between two vectors
-float euclidean(const vector<float>& , const vector<float>& );
+double euclidean(const vector<float>& , const vector<float>& );
 
 
 
@@ -67,8 +67,6 @@ void robust_prune(GraphNode, vector<GraphNode>&, int, int);
 
 GraphNode find_medoid(vector<graph_node>&);
 
-
-vector<int> random_permetuation(vector<int>);
 
 
 

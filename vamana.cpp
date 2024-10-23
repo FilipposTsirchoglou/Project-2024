@@ -65,8 +65,27 @@ vector<GraphNode> vectors_equal(vector<GraphNode>& l_closest, vector<GraphNode>&
     return unvisited;
 }
 
+vector<int> temp_vectors_equal(vector<GraphNode>& greedy_res, vector<int>& gt_res){  
+    bool are_same;
+    vector<int> dif = {};
 
-float euclidean(const vector<float>& p1, const vector<float>& p2){    
+    for(int i = 0; i < greedy_res.size(); i++){
+        are_same = false;
+        for(int j = 0; j < gt_res.size(); j++){
+            if(greedy_res[i]->id == gt_res[j]){     
+                are_same = true;
+                break;
+            }
+        }
+        if (are_same == false){
+            dif.push_back(greedy_res[i]->id);
+        }
+    }
+    return dif;
+}
+
+
+double euclidean(const vector<float>& p1, const vector<float>& p2){    
     float dist = 0.0;
 
     for(int i = 0; i < p1.size(); i++){
@@ -174,11 +193,11 @@ int create_random_graph(vector<graph_node>& graph, int r){
 }
 
 GraphNode find_medoid(vector<graph_node>& graph){
-    float min_eucl = INFINITY;
+    double min_eucl = INFINITY;
     int min_pos;
 
     for(int i=0 ; i<graph.size() ; i++) {
-        float eucl=0;
+        double eucl=0;
         for (int j=0 ; j<graph.size() ; j++) {
             if (i==j) continue;
             eucl += euclidean(graph[i].cords, graph[j].cords);
@@ -215,8 +234,8 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     vector<GraphNode> p = vectors_equal(l_closest, visited);
 
     while(!p.empty()){
-        vector<float> distance = {};
-        vector<GraphNode> pos = {};
+       // vector<float> distance = {};
+       // vector<GraphNode> pos = {};
 
         priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;
         
@@ -267,7 +286,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     return {l_closest, visited};
 }
 
-void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
+void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
     auto found_at_pos = find(v.begin(), v.end(), p);
     
     if (found_at_pos != v.end()) v.erase(found_at_pos);
@@ -309,7 +328,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 
         for (auto it = v.begin(); it != v.end();){
             
-            if (a * euclidean(p_star->cords, (*it)->cords) < euclidean((*it)->cords, p->cords)){     //SHOULD BE <=
+            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)){     //SHOULD BE <=
                 
                 v.erase(it);
             
@@ -325,8 +344,8 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, int a, int r) {
 /*MAIN FUNCTION*/
 int main(void){
     const unsigned int L=100;
-    const unsigned int R=30;
-    const unsigned int a=10;
+    const unsigned int R=80;
+    const float a=1.0;
 
     vector<graph_node> graph;
 
@@ -344,12 +363,12 @@ int main(void){
         if ((sigma[i] == 9999) || (sigma[i] == 0)) cout << " sigma [i]: " << sigma[i] << endl;
     }*/
 
-    GraphNode s = find_medoid(graph);   
+    //GraphNode s = find_medoid(graph);   
     cout << "done";
 
     for (int i = 0; i < sigma.size(); i++){    
         cout << "i: " << i <<endl;
-        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
+        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[8736], graph[sigma[i]], 1, L);
         vector<GraphNode> v = res.second;
         
         robust_prune(&graph[sigma[i]], v, a, R);
@@ -374,15 +393,190 @@ int main(void){
     }
 
 
+    ifstream file1("siftsmall/siftsmall_query.fvecs", ios::binary);
+    if (!file1) {
+        cout << "Can't open file" << endl;
+        return -1;
+    }
+
+    vector<vector<float>> q_points;
+
+    while (!file1.eof()){
+
+        int dimension;
+
+        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimensions
+
+        if(file1.eof()) break;
+
+        vector<float> point(dimension);
+
+        file1.read(reinterpret_cast<char*>(point.data()), dimension * sizeof(float));
+
+        q_points.push_back(point);
+      
+    }
+    file1.close();
 
 
+    ifstream file3("siftsmall/siftsmall_groundtruth.ivecs", ios::binary);
 
-    //cout << "v size: " << res.second.size() << endl;
+    if (!file3) {
+        cout << "Can't open file" << endl;
+        return -1;
+    }
 
+    vector<vector<int>> gt_points;
     
 
-   // cout << endl; 
-  
+    while (!file3.eof()){
+
+        int dimension;
+        file3.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimensions
+        if(file3.eof()) break;
+
+        
+        vector<int> point(dimension);
+
+        file3.read(reinterpret_cast<char*>(point.data()), dimension * sizeof(int));
+
+        gt_points.push_back(point);
+      
+    }
+    file3.close();
+
+    graph_node query;
+    query.id = graph.size();
+    graph.push_back(query);
+
+    pair<vector<GraphNode>, vector<GraphNode>> greedy_result2;
+    vector<int> all_dif;
+    for (int i=0 ; i<q_points.size() ; i++) {
+
+        graph[graph.size()-1].cords = q_points[i];
+        graph[graph.size()-1].outgoing = {};
+        graph[graph.size()-1].eucl_dist = -1;
+
+
+        greedy_result2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 100, L);
+
+        vector<int> dif = temp_vectors_equal(greedy_result2.first, gt_points[i]);
+
+        if (!dif.empty()) {
+            if (dif.size()==100) {
+                cout << " WARNING ID: "<< i << endl;
+                cout << " greedy: ";
+                for(int j = 0; j < 20; j++){
+                    cout << greedy_result2.first[j]->id << " ,";
+                }
+                cout << endl;
+                cout << " groundtruth: ";
+                for(int j = 0; j < 20; j++){
+                    cout << gt_points[i][j] << " ,";
+                }
+                cout << endl;
+            }
+            all_dif.push_back(dif.size());
+        } else {
+            all_dif.push_back(0);
+        }
+    }
+
+    for (int i=0 ; i<all_dif.size() ; i++) {
+        cout << all_dif[i] << endl;
+    }
+    cout<<endl;
+
+    graph[graph.size() - 1].cords = q_points[55];
+    graph[graph.size() -1].outgoing = {};
+    graph[graph.size() - 1].eucl_dist = -1;
+
+    pair<vector<GraphNode>, vector<GraphNode>> res2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++) {
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;
+
+
+    /*graph_node query;
+    query.id = graph.size();
+    query.cords = q_points[20];
+    graph.push_back(query);
+
+    
+    pair<vector<GraphNode>, vector<GraphNode>> res2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++) {
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;
+
+    graph[graph.size() - 1].cords = q_points[10];
+    graph[graph.size() -1].outgoing = {};
+    graph[graph.size() - 1].eucl_dist = -1;
+
+    res2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++) {
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;
+
+
+    graph[graph.size() - 1].cords = q_points[99];
+    graph[graph.size() -1].outgoing = {};
+    graph[graph.size() - 1].eucl_dist = -1;
+
+    res2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++) {
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;
+
+    graph[graph.size() - 1].cords = q_points[0];
+    graph[graph.size() -1].outgoing = {};
+    graph[graph.size() - 1].eucl_dist = -1;
+
+    res2 = greedy_search(graph, graph[8736], graph[graph.size() - 1], 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++) {
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;*/
+
+
+    //cout << s->id << endl;
+
+    /*float min = INFINITY;
+    GraphNode p;
+    for (int i = 0 ; i<graph.size() ; i++) {
+
+        float eucl = euclidean(graph[i].cords, q_points[0]);
+
+        if (eucl < min) {
+            min = eucl;
+            p = &graph[i];
+        }
+    }
+
+    cout << "id with min distance: " << p->id << endl;
+
+    for (auto it = p->outgoing.begin() ; it != p->outgoing.end() ; ++it) {
+        cout << (*it)->id << ", ";
+    }
+    cout << endl;
+    cout << endl;
+
+    pair<vector<GraphNode>, vector<GraphNode>> res2 = greedy_search(graph, *s, *p, 20, L);
+
+    for (int i = 0; i < res2.first.size(); i++){
+        cout << res2.first[i]->id << " ,";
+    }
+    cout << endl;*/
+    
+
 
     return 0;
 }

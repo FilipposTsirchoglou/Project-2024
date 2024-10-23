@@ -286,7 +286,7 @@ void test_find_medoid(){
     //return medoid;
 }
         
-void test_random_permetuation(){
+/*void test_random_permetuation(){
     vector<int> sigma; //= {0 ,1, 2, 3, 4, 5, 6, 7, 8, 9};
 
     for (int i=0 ; i<100 ; i++) {
@@ -296,7 +296,7 @@ void test_random_permetuation(){
 
     result = random_permetuation(sigma);
 
-}
+}*/
 
 TEST_LIST = {
 	{ "test_euclidean", test_euclidean },
@@ -304,7 +304,6 @@ TEST_LIST = {
     { "test_greedy_search", test_greedy_search},
     { "test_robust_prune", test_robust_prune},
     { "test_find_medoid", test_find_medoid},
-    { "test_random_permetuation", test_random_permetuation},
 	{ NULL, NULL }
 };
 
