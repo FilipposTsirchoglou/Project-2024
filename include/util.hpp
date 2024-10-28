@@ -1,18 +1,10 @@
-#include <vector>
-#include <cmath>
-#include <string>
-#include <fstream>
-#include <forward_list>
-#include <ctime>
-#include <utility>
-#include <queue>
-#include <algorithm>
-#include <bits/stdc++.h>
-#include <queue>
+/*util.hpp*/
+#pragma once
 
+#include <vector>
+#include <forward_list>
 
 using namespace std;
-
 
 // GraphNode is a pointer to a graph node
 typedef struct graph_node* GraphNode;
@@ -22,11 +14,9 @@ typedef struct graph_node* GraphNode;
 typedef struct graph_node {
     int id;                                     // Node's unique id
     vector<float> cords;                        // Each node has a vector. These are the vector's cords
-    forward_list<GraphNode> outgoing = {};      // List of pointers to graph_nodes
-    double eucl_dist = -1.0;                     // The euclidean distance between the nodes' vector to a query vector
+    forward_list<GraphNode> outgoing;      // List of pointers to graph_nodes
+    double eucl_dist;                     // The euclidean distance between the nodes' vector to a query vector
 }graph_node;
-
-
 
 // This struct compares two graph node pointers based on their euclidean distance with the query point
 struct CompareDistance {
@@ -36,12 +26,8 @@ struct CompareDistance {
     }
 };
 
-
-
 // Returns a vector with the difference of the k-approx NNs and the visited nodes
-vector<GraphNode> vectors_equal(vector<GraphNode>&, vector<GraphNode>&);
-
-
+vector<GraphNode> vectors_difference(vector<GraphNode>&, vector<GraphNode>&);
 
 // Returns the euclidean distance between two vectors
 double euclidean(const vector<float>& , const vector<float>& );
@@ -56,20 +42,4 @@ bool compare_eucl(GraphNode, GraphNode);
 // Returns a random integer in a certain range
 int get_random_number(int);
 
-
-
-// Returns a pair that consists of the k-approx NNs and the visited nodes after the greedy search
-pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, graph_node&, graph_node&, int, int);
-
-
-
-void robust_prune(GraphNode, vector<GraphNode>&, int, int);
-
-GraphNode find_medoid(vector<graph_node>&);
-
-
-
-
-
-
-
+GraphNode find_min_eucl(vector<GraphNode>&, graph_node&);
