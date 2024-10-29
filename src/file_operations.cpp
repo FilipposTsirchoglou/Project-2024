@@ -6,21 +6,26 @@
 
 using namespace std;
 
+
+
 /*Reads a .fvecs file and stores the data in the vector that gets passed as a parameter*/
 int read_fvec_files(const string& file_path, vector<vector<float>>& all_points) {
+    
     ifstream file1(file_path, ios::binary);
     if (!file1) {
         cout << "Can't open file" << endl;
         return -1;
     }
 
-    while (!file1.eof()){
+    while (!file1.eof()) {
 
         int dimension;
 
-        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimensions
+        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimension
 
-        if(file1.eof()) break;
+        if(file1.eof()){ 
+            break;
+        }
 
         vector<float> point(dimension);
 
@@ -29,25 +34,32 @@ int read_fvec_files(const string& file_path, vector<vector<float>>& all_points) 
         all_points.push_back(point);
       
     }
+
     file1.close();
     return 0;
+
 }
+
+
 
 /*Reads a .ivecs file and stores the data in the vector that gets passed as a parameter*/
 int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
+    
     ifstream file1(file_path, ios::binary);
     if (!file1) {
         cout << "Can't open file" << endl;
         return -1;
     }
 
-    while (!file1.eof()){
+    while (!file1.eof()) {
 
         int dimension;
 
-        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimensions
+        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   
 
-        if(file1.eof()) break;
+        if(file1.eof()) { 
+            break;
+        }
 
         vector<int> point(dimension);
 
@@ -56,6 +68,8 @@ int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
         all_points.push_back(point);
       
     }
+
     file1.close();
     return 0;
+    
 }
