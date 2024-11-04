@@ -104,7 +104,10 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
     med = s;
 
     for (int i=0 ; i<sigma.size() ; i++) {       // Itterate all the points of the vector in random order
-        cout << "i: " << i <<endl;
+        
+        if( i % 1000 == 0) {
+            cout << (i / 100) << "%" << endl;
+        }
 
         pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
         vector<GraphNode> v = res.second;        
@@ -128,7 +131,7 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
             }
         }
     }
-
+    cout << "100%" << endl;
     return graph;
 }
 
@@ -136,7 +139,6 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
 
 /*Creates a random r-regular graph and returns it from the parameters*/
 void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_points, int r) {
-
     for(int i = 0 ; i < all_points.size() ; i++) {
         graph_node g;
         g.id = i;
@@ -184,6 +186,8 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
 
 /*Finds and returns the medoid of the graph*/
 GraphNode find_medoid(vector<graph_node>& graph) {
+    cout << " Finding medoid..." << endl;
+    
     double min_eucl = INFINITY;
     int min_pos;
 
@@ -200,6 +204,7 @@ GraphNode find_medoid(vector<graph_node>& graph) {
         }
     }
     GraphNode medoid = &graph[min_pos];
+    cout << " Medoid found !" << endl;
 
     return medoid;
 }
