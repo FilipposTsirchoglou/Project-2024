@@ -16,12 +16,12 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, gr
 
 
 /*Graph gets modified by setting at most R new outgoing neigbors for p*/
-void robust_prune(GraphNode, vector<GraphNode>&, int, int);
+void robust_prune(GraphNode, vector<GraphNode>&, float, int);
 
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>&, float, int, int);
+vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&);
 
 
 

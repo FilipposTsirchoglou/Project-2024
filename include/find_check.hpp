@@ -16,12 +16,12 @@ vector<int> temp_vectors_equal(vector<GraphNode>&, vector<int>&);
 
 
 /*Takes the vamana graph, a query point , k and a search list of size L and returns a vector of the k closest neighbours of the query point*/
-vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>&, vector<float>&, int, int);
+vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>&, vector<float>&, int, int, graph_node&);
 
 
 
 /*Returns a vector of vectors with the k closest neighbours of every single query point*/
-vector<vector<GraphNode>> find_k_closest_for_all_query_points(vector<graph_node>&, vector<vector<float>>&, int, int);
+vector<vector<GraphNode>> find_k_closest_for_all_query_points(vector<graph_node>&, vector<vector<float>>&, int, int, graph_node&);
 
 
 

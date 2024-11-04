@@ -12,34 +12,34 @@ using namespace std;
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l) {
     vector<GraphNode> l_closest = {&s};
     vector<GraphNode> visited = {};
-    vector<GraphNode> p = vectors_difference(l_closest, visited);  //computes L-V
+    vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
-    while(!p.empty()) {      //while L\V != empty set
+    while(!p.empty()) {      // While L\V != empty set
 
-       GraphNode p_star = find_min_eucl(p, xq);     //finds the graph node p_star from all the p that has the min euclidian distance from xq
+       GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
       
-        /* update L ← L ∪ Nout(p_star) andV ← V ∪ {p_star} */
+        // Update L ← L ∪ Nout(p_star) andV ← V ∪ {p_star} 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin() ; it != p_star->outgoing.end() ; ++it) {
-            auto cond = find(l_closest.begin(), l_closest.end(), (*it));    //search if the elements inside the outgoing list of p_star already exist in the l_closest vector
+            auto cond = find(l_closest.begin(), l_closest.end(), (*it));    // Search if the elements inside the outgoing list of p_star already exist in the l_closest vector
 
-            if ((cond == l_closest.end()) && (*it)->id != xq.id) {          //if the element is not already in the l_closest list && the element is not the same as the xq element(we dont want to compute the euclidian distance between a point and its self)
-                (*it)->eucl_dist = euclidean((*it)->cords, xq.cords);       // re-compute in case of eucl_dist = -1
+            if ((cond == l_closest.end()) && (*it)->id != xq.id) {          // If the element is not already in the l_closest list && the element is not the same as the xq element(we dont want to compute the euclidian distance between a point and its self)
+                (*it)->eucl_dist = euclidean((*it)->cords, xq.cords);       // Re-compute in case of eucl_dist = -1
                 l_closest.push_back((*it));   
             }               
         }
         visited.push_back(p_star);
 
-        /* update l_closest to retain closest L points to xq*/
-        if (l_closest.size() >= l) {
+        // Update l_closest to retain closest L points to xq
+        if (l_closest.size() > l) {
             
-            sort(l_closest.begin(), l_closest.end(), compare_eucl);     //sorts the l_closest vector using a custom comparator function 
-            l_closest.resize(l);        //keep the first L elements of the vector
+            sort(l_closest.begin(), l_closest.end(), compare_eucl);     // Sorts the l_closest vector using a custom comparator function 
+            l_closest.resize(l);        // Keep the first L elements of the vector
         }
         
-        p = vectors_difference(l_closest, visited);      //recompute L-V before the condition is checked  in the while loop
+        p = vectors_difference(l_closest, visited);      // Recompute L-V before the condition is checked  in the while loop
     }
 
-    l_closest.resize(k);        //keeps the k closest elements of the vector that we want to return
+    l_closest.resize(k);        // Keeps the k closest elements of the vector that we want to return
 
     return {l_closest, visited};
 }
@@ -77,7 +77,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
         for (auto it = v.begin(); it != v.end();) {      // For (p' E V) do
             
-            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)) {     //SHOULD BE <=
+            if (a * euclidean(p_star->cords, (*it)->cords) <= euclidean((*it)->cords, p->cords)) {     
                 
                 v.erase(it);
             
@@ -91,7 +91,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R) {
+vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med) {
 
     // Creates a random graph using the all_points vector and stores it in the gaph vector
     vector<graph_node> graph;
@@ -100,13 +100,13 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
     // Stores a random permutation atvector sigma
     vector<int> sigma = give_random_permutation(graph.size());
 
-    //GraphNode s = find_medoid(graph);   //!!!!!!!  DON'T DELETE  !!!!!!!!
-
+    GraphNode s = find_medoid(graph);   
+    med = s;
 
     for (int i=0 ; i<sigma.size() ; i++) {       // Itterate all the points of the vector in random order
         cout << "i: " << i <<endl;
 
-        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[8736], graph[sigma[i]], 1, L);
+        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
         vector<GraphNode> v = res.second;        
         robust_prune(&graph[sigma[i]], v, a, R);
         
@@ -116,7 +116,6 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
             vector<GraphNode> temp_vec;
             // temp_vec = Nout(j) U {σ(i)}
             for (auto it2 = (*it)->outgoing.begin() ; it2 != (*it)->outgoing.end() ; ++it2) {
-                //cout << (*it2)->id << " , ";
                 temp_vec.push_back((*it2));
             }
             temp_vec.push_back(&graph[sigma[i]]);

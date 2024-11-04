@@ -1,8 +1,6 @@
 /*find_check.cpp*/
 
 #include <iostream>
-//#include "include/util.hpp"
-//#include "../include/find_check.hpp"
 #include "../include/util.hpp"
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
@@ -37,7 +35,7 @@ vector<int> temp_vectors_equal(vector<GraphNode>& greedy_res, vector<int>& gt_re
 
 
 /*Takes the vamana graph, a query point , k and a search list of size L and returns a vector of the k closest neighbours of the query point*/
-vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& vamana_graph, vector<float>& q_point, int k, int L) {
+vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& vamana_graph, vector<float>& q_point, int k, int L, graph_node& s) {
     
     graph_node query;
     query.id = vamana_graph.size();
@@ -47,7 +45,7 @@ vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& vama
     vamana_graph.push_back(query);
     
     // Performing greedy search in the vamana graph for the specific query point
-    pair<vector<GraphNode>, vector<GraphNode>> greedy_result2 = greedy_search(vamana_graph, vamana_graph[8736], vamana_graph[vamana_graph.size() - 1], k, L);
+    pair<vector<GraphNode>, vector<GraphNode>> greedy_result2 = greedy_search(vamana_graph, s, vamana_graph[vamana_graph.size() - 1], k, L);
 
     // After finding the k closest of the query, we rempve it from the graph
     vamana_graph.erase(vamana_graph.end()-1);
@@ -59,7 +57,7 @@ vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& vama
 
 
 /*Returns a vector of vectors with the k closest neighbours of every single query point*/
-vector<vector<GraphNode>> find_k_closest_for_all_query_points(vector<graph_node>& vamana_graph, vector<vector<float>>& q_points, int k, int L) {
+vector<vector<GraphNode>> find_k_closest_for_all_query_points(vector<graph_node>& vamana_graph, vector<vector<float>>& q_points, int k, int L, graph_node& s) {
 
     graph_node query;
     query.id = vamana_graph.size();
@@ -78,7 +76,7 @@ vector<vector<GraphNode>> find_k_closest_for_all_query_points(vector<graph_node>
         vamana_graph[vamana_graph.size()-1].outgoing = {};
         vamana_graph[vamana_graph.size()-1].eucl_dist = -1;
 
-        greedy_result2 = greedy_search(vamana_graph, vamana_graph[8736], vamana_graph[vamana_graph.size() - 1], k, L);
+        greedy_result2 = greedy_search(vamana_graph, s, vamana_graph[vamana_graph.size() - 1], k, L);
         
         k_closest_vec.push_back(greedy_result2.first);
     }  
@@ -112,7 +110,6 @@ float check_groundtruth_for_all_query_points(vector<vector<GraphNode>>& my_k_clo
         
         vector<int> dif = temp_vectors_equal(my_k_closest_vec[i], gt_k_closest_vec[i]);
         float recall = (float)( my_k_closest_vec[i].size()-dif.size() ) / (float)(my_k_closest_vec[i].size());
-        //cout << "recall: " << recall << endl;
         recall_sum += recall;
 
     }
