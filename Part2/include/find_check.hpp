@@ -32,4 +32,4 @@ float check_groundtruth_for_single_query_point(vector<GraphNode>&, vector<int>&)
 
 /*Compares the k closest neighbours of all the query points we we found using the vamana algorithm, with the ones of the groundtruth file and returs the average recall*/
 float check_groundtruth_for_all_query_points(vector<vector<GraphNode>>&, vector<vector<int>>&);
-/*TEST BRANCH */
+/*TEST BRANCH 2*/
