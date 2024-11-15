@@ -1,5 +1,8 @@
 #include "acutest.h"
-#include "temp_header.hpp"
+//#include "temp_header.hpp"
+#include "../include/util.hpp"
+#include "../include/vamana.hpp"
+#include "../include/find_check.hpp"
 #include <iostream>
 
 using namespace std;
