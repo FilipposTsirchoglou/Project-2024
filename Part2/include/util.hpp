@@ -19,6 +19,7 @@ typedef struct graph_node {
     vector<float> cords;                        // Each node has a vector. These are the vector's cords
     forward_list<GraphNode> outgoing;           // List of pointers to graph_nodes
     double eucl_dist;                           // The euclidean distance between the nodes' vector to a query vector
+    vector<int> filters;                       // The filters that have been applied to the node
 }graph_node;
 
 
