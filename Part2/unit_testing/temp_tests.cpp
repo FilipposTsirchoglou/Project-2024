@@ -618,6 +618,7 @@ void test_vectors_differnce(void) {
 
 
 
+
 TEST_LIST = {
 	{ "test_euclidean", test_euclidean },
     { "test_compare_eucl", test_compare_eucl},
