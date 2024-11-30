@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <vector>
+#include <map>
 
 
 
@@ -37,3 +38,14 @@ GraphNode find_medoid(vector<graph_node>&);
 
 /*Returns a random permutation of integers*/
 vector<int> give_random_permutation(int);
+
+
+
+/**/
+map<int, int> filteredFindMedoid(vector<graph_node>&, int, vector<int>&);
+
+
+
+
+/**/
+pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<graph_node>&, graph_node&, int, int);
