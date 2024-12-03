@@ -9,7 +9,8 @@
 #include <queue>
 #include "include/util.hpp"
 #include <map>
-#include <algorithm>  
+#include <algorithm> 
+#include "include/vamana.hpp" 
 
 using namespace std;
 
@@ -53,6 +54,12 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>& filter_set) {
 
   map<int, int> M;             // Initializing M to be an empty map
+
+  for (int i = 0 ; i < filter_set.size() ; i++) {
+
+    M[filter_set[i]] = -1;
+
+  }
   
   map<int, int> T;
 
@@ -62,9 +69,12 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
 
   }
 
+  cout << "filter set size: " << filter_set.size() << endl;
+  //for (int i = 0)
+
   for (int i = 0 ; i < filter_set.size() ; i++) {
     
-    vector<graph_node> pf = {};
+    vector<int> pf = {};        //positions 
 
     for (int j = 0 ; j < graph.size() ; j++) {
 
@@ -72,6 +82,7 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
       for (int k = 0 ; k < graph[j].filters.size() ; k++) {
 
         if (graph[j].filters[k] == filter_set[i]) {
+          cout << graph[j].filters[k] << " == " << filter_set[i] << endl;
 
           found = true;
           break;
@@ -81,21 +92,21 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
 
       if (found) {
 
-        pf.push_back(graph[j]);
+        pf.push_back(j);
 
       }
 
     }
 
-    vector<graph_node> rf = {};
+    vector<int> rf = {};
 
     do {
 
-      int random_id = get_random_number(th - 1);
+      int random_ind = get_random_number(pf.size() - 1);
 
       if (rf.size() == 0) {                   // If Rf is empty, we surely insert the node with id = random_id
 
-        rf.push_back(graph[random_id]);
+        rf.push_back(pf[random_ind]);
 
       }
       else {                                  // If Rf is not empty, we have to check if the node with id = random_id already exists
@@ -104,7 +115,7 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
 
         for (int j = 0 ; j < rf.size() ; j++) {
           
-          if (rf[j].id == random_id) {              // The node already exists
+          if (rf[j] == pf[random_ind]) {              // The node already exists
 
             flag = false;
             break;
@@ -114,30 +125,37 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
 
         if (flag == true) {
 
-          rf.push_back(graph[random_id]);
+          rf.push_back(pf[random_ind]);
 
         }
       }
 
     } while (rf.size() < th);     // We stop when Rf has th nodes
 
+    cout << "rf: " << endl;
+
     int min = 100000;
-    int p_star;
+   
+    int p_star = -1;
 
     for (int i = 0 ; i < rf.size() ; i++) {
+      
+      if (T[rf[i]] < min) {
 
-      if (T[rf[i].id] < min) {
-
-        min = T[rf[i].id];
-        p_star = rf[i].id;
+        min = T[rf[i]];
+        p_star = rf[i];
 
       }
-
     }
 
-    M[i] = p_star;
+    M[filter_set[i]] = p_star;
+ 
     T[p_star]++;
 
+  }
+
+  for (map<int, int>::iterator it = M.begin(); it != M.end(); ++it) {
+    std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
   }
 
   return M;
@@ -279,6 +297,63 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
         }
       }
     }
+
+}
+
+
+vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th) {
+  
+  map<int, int> medoid_pos = filteredFindMedoid(graph, th, filter_set);
+
+  vector<int> sigma = give_random_permutation(graph.size());
+
+  for (int i = 0 ; i < sigma.size() ; i++) {
+    
+    int start_node = medoid_pos[graph[sigma[i]].filters[0]];
+
+    graph_node node;
+   
+    vector<graph_node> s = {};
+  
+    s.push_back(graph[start_node]);
+
+    pair<vector<GraphNode>, vector<GraphNode>> res; 
+    res = filteredGreedySearch(graph, s, graph[sigma[i]], 0, L);
+
+    res.first = {};
+
+    filteredRobustPrune(&graph[sigma[i]], res.second, a, R);
+
+    for (forward_list<GraphNode>::iterator it = graph[sigma[i]].outgoing.begin() ; it != graph[sigma[i]].outgoing.end() ; ++it) {
+
+      (*it)->outgoing.push_front(&graph[sigma[i]]);
+
+      int list_size = distance((*it)->outgoing.begin(), (*it)->outgoing.end());
+      if (list_size > R) {
+
+        vector<GraphNode> temp_vec = {};
+        for (int j = 0 ; j < list_size ; j++) {
+
+          temp_vec.push_back((*it)->outgoing.front());
+          (*it)->outgoing.front();
+          
+
+        }
+
+        filteredRobustPrune((*it), temp_vec, a, R);
+
+        for (int j = 0 ; j < temp_vec.size() ; j++) {
+
+          (*it)->outgoing.push_front(temp_vec[i]);
+
+        }
+
+      }
+    }
+
+  }
+
+  return graph;
 
 }
 
