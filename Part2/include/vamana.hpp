@@ -49,3 +49,13 @@ map<int, int> filteredFindMedoid(vector<graph_node>&, int, vector<int>&);
 
 /**/
 pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<graph_node>&, graph_node&, int, int);
+
+
+
+/**/
+void filteredRobustPrune(GraphNode, vector<GraphNode>&, float, int);
+
+
+
+
+vector<graph_node> filteredVamana(vector<graph_node>&, float, int, int, vector<int>&, int);
