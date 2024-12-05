@@ -48,7 +48,7 @@ map<int, int> filteredFindMedoid(vector<graph_node>&, int, vector<int>&);
 
 
 /**/
-pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<graph_node>&, graph_node&, int, int);
+pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<GraphNode>&, graph_node&, int, int);
 
 
 
