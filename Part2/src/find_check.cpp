@@ -35,20 +35,20 @@ vector<int> temp_vectors_equal(vector<GraphNode>& greedy_res, vector<int>& gt_re
 
 
 /*Takes the vamana graph, a query point , k and a search list of size L and returns a vector of the k closest neighbours of the query point*/
-vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& vamana_graph, vector<float>& q_point, int k, int L, graph_node& s) {
+vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>& filtered_vamana, vector<float>& q_point, int k, int L, vector<GraphNode>& s) {
     
     graph_node query;
-    query.id = vamana_graph.size();
+    query.id = filtered_vamana.size();
     query.cords = q_point;
     query.eucl_dist = -1;                 // Putting the query point in a graph node and inserting it temporarily in the vamana graph
     query.outgoing={};                    // to find its k closest
-    vamana_graph.push_back(query);
+    filtered_vamana.push_back(query);
     
     // Performing greedy search in the vamana graph for the specific query point
-    pair<vector<GraphNode>, vector<GraphNode>> greedy_result2 = greedy_search(vamana_graph, s, vamana_graph[vamana_graph.size() - 1], k, L);
+    pair<vector<GraphNode>, vector<GraphNode>> greedy_result2 = filteredGreedySearch(filtered_vamana, s, filtered_vamana[filtered_vamana.size() - 1], k, L);
 
     // After finding the k closest of the query, we rempve it from the graph
-    vamana_graph.erase(vamana_graph.end()-1);
+    filtered_vamana.erase(filtered_vamana.end()-1);
     
     return greedy_result2.first;
 

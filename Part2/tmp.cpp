@@ -96,21 +96,35 @@ int main(void) {
 
   }
 
-  vector<graph_node> vamana_filtered = filteredVamana(graph, 1.0, 150, 12, filter_set, 1);
+  map<int, int> med = filteredFindMedoid(graph, 1, filter_set);
+
+  vector<graph_node> vamana_filtered = filteredVamana(graph, 1.0, 150, 12, filter_set, 1, med);
  
   vector<GraphNode> s;
-  s.push_back(&graph[6326]);
+  
+  for (auto it = med.begin() ; it != med.end() ; ++it) {
 
+    s.push_back(&graph[it->second]);
+
+  }
+  for(int i = 0; i < s.size(); i++){
+    cout << s[i]->id << endl;
+  }
   graph_node gq;
   gq.id = graph.size();
-  for(int j = 4 ; j < queries[1].size() ; j++) {
-    gq.cords.push_back(queries[1][j]);
+  for(int j = 4 ; j < queries[0].size() ; j++) {
+    gq.cords.push_back(queries[0][j]);
   }
   gq.eucl_dist = -1;
   gq.outgoing = {};
-  gq.filters.push_back(queries[1][1]);
+  for(int i = 0; i < filter_set.size(); i++){
+    gq.filters.push_back(i);
+  }
   
   graph.push_back(gq);
+  for(int i = 0; i<gq.filters.size(); i++){
+    cout << gq.filters[i] << endl;
+  }
   
   pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s, graph[graph.size() - 1], 100, 150);
   

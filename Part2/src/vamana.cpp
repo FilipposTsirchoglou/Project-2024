@@ -358,7 +358,7 @@ pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_nod
 
     }
   }
-
+  cout << "lclosest size = " << l_closest.size() << endl;
   vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
   while (!p.empty()) {
@@ -503,15 +503,15 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
 
 
 /**/
-vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th) {
+vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th, map<int, int>& med) {
   
-  map<int, int> medoid_pos = filteredFindMedoid(graph, th, filter_set);
+  //med = filteredFindMedoid(graph, th, filter_set);
 
   vector<int> sigma = give_random_permutation(graph.size());
 
   for (int i = 0 ; i < sigma.size() ; i++) {
     cout << i << endl;
-    int start_node = medoid_pos[graph[sigma[i]].filters[0]];
+    int start_node = med[graph[sigma[i]].filters[0]];
 
     graph_node node;       // mallon den xreiazetai kapou
    
