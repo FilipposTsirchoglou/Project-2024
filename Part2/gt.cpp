@@ -53,6 +53,8 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 int main(void) {
 
     //read an store data in vector data
+    vector<vector<float>> gt;
+
     vector<vector<float>> data;
     ReadBin("dummy-data.bin", 102, data);
     vector<graph_node> graph;
@@ -87,7 +89,11 @@ int main(void) {
         graph.push_back(g);
 
     }
-    //cout << "Filter set size: " << filter_set.size() << endl;
+
+    vector<GraphNode> graph_pointers;
+    for (int j=0 ; j<graph.size() ; j++) {
+        graph_pointers.push_back(&graph[j]);
+    }
 
     //for each filter in filter set, find the data that match the filter
 
@@ -110,43 +116,69 @@ int main(void) {
             }
         }
     }
-/*
-    for (int i=0 ; i<points_by_filter.size() ; i++) {
-        cout << "Filter: " << i << "-> ";
-        for (int j=0 ; j<points_by_filter[i].size() ; j++) {
-            cout <<"[ " << points_by_filter[i][j]->id << ", " << points_by_filter[i][j]->filters[0] << " ] , ";
-        }   
-        cout << endl;
-    }
-    cout << endl;
-*/
 
     //read queries and store them in the vectro queries
     vector<vector<float>> queries;
     ReadBin("dummy-queries.bin", 104, queries);
 
     for (int i=0 ; i<queries.size() ; i++) {          //for each query
-        cout << "query: " << i << endl << endl;
+       // cout << "query: " << i << endl << endl;
+
+
+        //keep the cords of the query in a vector
+        vector<float> query_cords;
+        for (int k=4 ; k<queries[i].size() ; k++) { 
+            query_cords.push_back(queries[i][k]);
+        }
 
         if ( (queries[i][0] == 2) || (queries[i][0] == 3)) continue;
 
-        if (queries[i][0] == 0) {
-            cout << "type 0" << endl;
+        vector<float> closest;
 
+        if (queries[i][0] == 0) {
+            //cout << "type 0" << endl;
+            closest.push_back(i);
             //type 0 queries -> find 100 closest without filters
 
-        } else if (queries[i][0] == 1) {
+           //calculate the distance between each point of the graph and the query and store it in a graph 
+            for (int j=0 ; j<graph.size() ; j++) {
+                graph[j].eucl_dist = euclidean(graph[j].cords, query_cords);
+            }
 
+            stable_sort(graph_pointers.begin(), graph_pointers.end(), compare_eucl);
+
+            //keep the 100 closest points
+            for (int j=0 ; j<graph_pointers.size() ; j++) {
+                if (j == 100) break;
+                closest.push_back(graph_pointers[j]->id);
+            }
+
+            //save closest vector to a binary file 
+
+            gt.push_back(closest);
+
+
+
+        } else if (queries[i][0] == 1) {
             //type 1 queries -> find 100 closest with filters
+            //cout << "type 1" <<  endl;
+            closest.push_back(i);
+
 
             int filter = queries[i][1];
-            for (int j=0 ; j < points_by_filter[filter].size() ; j++) {      //for each point that has the same filter as the query
-                vector<float> query_cords;
-                
-                //keep the cords of the query in a vector
-                for (int k=4 ; k<queries[i].size() ; k++) { 
-                    query_cords.push_back(queries[i][k]);
+            cout << "points by filter size: " << points_by_filter.size() << endl;
+            if (filter > points_by_filter.size()) {
+                cout << "aaaa filter: " << filter << endl;
+                cout << "aiiiii: " << i << endl;
+                //vector to of 100 -1 floats
+                for (int j=0 ; j<100 ; j++) {
+                    closest.push_back(-1);
                 }
+                gt.push_back(closest);
+
+                continue;
+            }
+            for (int j=0 ; j < points_by_filter[filter].size() ; j++) {      //for each point that has the same filter as the query
                 
                 //calculate the euclidean distance between the point and the query and store it in the point's eucl_dist
                 points_by_filter[filter][j]->eucl_dist = euclidean(points_by_filter[filter][j]->cords, query_cords);
@@ -158,24 +190,48 @@ int main(void) {
             int l;
             for (l = 0 ; l<points_by_filter[filter].size() ; l++) {
                 if (l == 100) break;
-                cout << "Point: " << points_by_filter[filter][l]->id << " Filter: " << points_by_filter[filter][l]->filters[0] << " Eucl dist: " << points_by_filter[filter][l]->eucl_dist << endl;
+                closest.push_back(points_by_filter[filter][l]->id);
+            } 
+            if (l<100) {
+                for (int j=l ; j<100 ; j++) {
+                    closest.push_back(-1);
+                }
             }
-            cout << "size: " << l << endl;
-
-            //sort()
-
-            //sort the points by their euclidean distance
-
+            //save closest vector to a binary file
+            gt.push_back(closest);
 
         } else {
             cout << "Invalid query type" << endl;
             exit(1);
         }
+        //cout << "size: " << closest.size();
     }
 
+    //save to binay file
 
+    ofstream outFile("GroundTruth.bin", ios::binary);
+    uint32_t N = gt.size();
+    outFile.write(reinterpret_cast<const char*>(&N), sizeof(uint32_t));
 
+   for (int i=0 ; i<gt.size() ; i++) {
+        size_t size=gt[i].size();
+        outFile.write(reinterpret_cast<const char*>(gt[i].data()), size * sizeof(float));
+   }
+    outFile.close();
+    cout << "writen bin file" << endl;
 
+    cout << "Attempting to read the file" << endl;
+    vector<vector<float>> gt2;
+    ReadBin("GroundTruth.bin", 101, gt2);
+    cout << "gt2 size: " << gt2.size() << endl;
 
+    for (int i=0 ; i<gt2.size() ; i++) {
+        cout << "query: " << gt2[i][0] << endl;
+        for (int j=1 ; j<gt2[i].size() ; j++) {
+            cout << gt[i][j] << " ";
+        }
+        cout << endl << endl;
+    }
 
+    return 0;
 }
