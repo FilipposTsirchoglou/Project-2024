@@ -130,16 +130,38 @@ int main(void) {
   
   cout << "Result size = ";
   cout << result.first.size() << endl;
-  for(int i = 0 ; i < result.first.size() ; i++){
+  /*for(int i = 0 ; i < result.first.size() ; i++){
     //cout << i << endl;
+    
     if (result.first[i] == NULL){
       cout << "error " << endl;
     }
     else {
       cout << result.first[i]->id << " , ";
     }  
+  }*/
+  for (int i = 0 ; i < queries.size() ; i++) {
+    if (queries[i][0] == 1) {
+      graph_node gq;
+      gq.id = vamana_filtered.size();
+      for(int j = 4 ; j < queries[i].size() ; j++) {
+        gq.cords.push_back(queries[i][j]);
+      }
+
+      gq.eucl_dist = -1;
+      gq.outgoing = {};
+      gq.filters.push_back(queries[i][1]);
+
+      vamana_filtered.push_back(gq);
+
+      vector<GraphNode> s1;
+      s1.push_back(&vamana_filtered[med[queries[i][1]]]);
+      
+      pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s, vamana_filtered[vamana_filtered.size() - 1], 100, 150);
+
+
+    }
   }
-  cout << endl;
 
   return 0;
 }
