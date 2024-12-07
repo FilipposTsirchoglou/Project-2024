@@ -10,6 +10,8 @@ using namespace std;
 typedef struct graph_node* GraphNode;
 
 
+
+
 // This is a graph node
 typedef struct graph_node {
     int id;                                     // Node's unique id
@@ -17,7 +19,6 @@ typedef struct graph_node {
     forward_list<GraphNode> outgoing;           // List of pointers to graph_nodes
     double eucl_dist;                           // The euclidean distance between the nodes' vector to a query vector
 }graph_node;
-
 
 
 // This struct compares two graph node pointers based on their euclidean distance with the query point

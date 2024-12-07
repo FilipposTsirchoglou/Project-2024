@@ -57,22 +57,11 @@ using namespace std;
 int main(void) {
 
   //Read the configuration file and store its values
-  string DATA_FILE, QUERIES_FILE;
+  string DATA_FILE, QUERIES_FILE, METHOD_TYPE;
   int L, R, k, th, L_small, R_small, R_stich;
   float a;
 
-  read_config_file(DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich);
-  /*cout << "DATA: " << DATA_FILE <<endl;
-  cout << "QUERIES: " << QUERIES_FILE <<endl;
-  cout << "R: " << R <<endl;
-  cout << "L: " << L <<endl;
-  cout << "a: " << a <<endl;
-  cout << "k: " << k <<endl;
-  cout << "th: " << th <<endl;
-  cout << "L_small: " << L_small <<endl;
-  cout << "R_small: " << R_small <<endl;
-  cout << "R_stich: " << R_stich <<endl;*/
-
+  read_config_file(DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0
 
   /*dummy node of id -1 (it is a placeholder)*/
   graph_node dummy_node;
@@ -90,34 +79,10 @@ int main(void) {
 
   vector<graph_node> graph;
 
-  //calculate the filter set MAKE FUNCTION
-
-  //vector<int> filter_set = {};
-
   vector<int> filter_set = find_filter_set(nodes);
 
 
   for(int i = 0 ; i < nodes.size() ; i++) {
-
-    //filter set creation
-    /*
-    bool filter_found = false;
-    for(int j = 0 ; j < filter_set.size() ; j++) {
-
-      if (nodes[i][0] == filter_set[j]) {
-
-        filter_found = true;
-        break;
-
-      }
-
-    }
-    
-    if (filter_found == false) {
-
-      filter_set.push_back(nodes[i][0]);
-
-    }*/
     
     //graph creation
     graph_node g;
@@ -165,9 +130,9 @@ int main(void) {
 
   float recall_sum = 0;
   int count = 0;
-
+  cout <<"sdjcvsdbchdsc0" << endl;
   for (int i = 0 ; i < queries.size() ; i++) {    //for every query 
- 
+  
     if (queries[i][0] == 1) {     //thas is of type 1
       cout << "query: " << i <<endl;
       count++;
