@@ -50,6 +50,8 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 
 }
 
+
+
 int main(void) {
 
     //read an store data in vector data
@@ -166,10 +168,10 @@ int main(void) {
 
 
             int filter = queries[i][1];
-            cout << "points by filter size: " << points_by_filter.size() << endl;
+            //cout << "points by filter size: " << points_by_filter.size() << endl;
             if (filter > points_by_filter.size()) {
-                cout << "aaaa filter: " << filter << endl;
-                cout << "aiiiii: " << i << endl;
+                //cout << "aaaa filter: " << filter << endl;
+                //cout << "aiiiii: " << i << endl;
                 //vector to of 100 -1 floats
                 for (int j=0 ; j<100 ; j++) {
                     closest.push_back(-1);
@@ -225,13 +227,13 @@ int main(void) {
     ReadBin("GroundTruth.bin", 101, gt2);
     cout << "gt2 size: " << gt2.size() << endl;
 
-    for (int i=0 ; i<gt2.size() ; i++) {
+    /*for (int i=0 ; i<gt2.size() ; i++) {
         cout << "query: " << gt2[i][0] << endl;
         for (int j=1 ; j<gt2[i].size() ; j++) {
             cout << gt[i][j] << " ";
         }
         cout << endl << endl;
-    }
+    }*/
 
     return 0;
 }

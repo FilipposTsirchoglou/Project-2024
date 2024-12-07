@@ -32,6 +32,22 @@ vector<int> temp_vectors_equal(vector<GraphNode>& greedy_res, vector<int>& gt_re
 
 }
 
+int vectors_equal(vector<GraphNode>& greedy_res, vector<float>& gt_res) {  
+
+    int counter=0;
+
+    for(int i = 1 ; i < gt_res.size() ; i++) {
+        for(int j = 0 ; j < greedy_res.size() ; j++) {
+            if(greedy_res[j]->id == gt_res[i]) {   
+                counter++;  
+  
+                break;
+            }
+        }
+    }
+    return counter;
+}
+
 
 
 /*Takes the vamana graph, a query point , k and a search list of size L and returns a vector of the k closest neighbours of the query point*/
