@@ -8,3 +8,4 @@ th = 1
 L-SMALL = 3
 R-SMALL = 3
 R-STICH = 3
+METHOD-TYPE = F0  

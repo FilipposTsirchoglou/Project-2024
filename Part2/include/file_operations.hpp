@@ -11,4 +11,4 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 
 
 /*Reads the config file ans stores teh contents in the variables passed */
-void read_config_file (string &DATASET, string &QUERIES, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH);
+void read_config_file (string &DATASET, string &QUERIES, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH, string &method_type);
