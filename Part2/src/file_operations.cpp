@@ -6,7 +6,7 @@
 
 using namespace std;
 
-
+/*Reads a binary file and stores the contents in the vector passed*/
 void ReadBin(const string &file_path, const int num_dimensions, vector<vector<float>> &data) {
   cout << "Reading Data: " << file_path << endl;
   ifstream ifs;
@@ -30,68 +30,44 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 }
 
 
-/*Reads a .fvecs file and stores the data in the vector that gets passed as a parameter*/
-int read_fvec_files(const string& file_path, vector<vector<float>>& all_points) {
-    
-    ifstream file1(file_path, ios::binary);
-    if (!file1) {
-        cout << "Can't open file" << endl;
-        return -1;
-    }
+/*Reads the config file and stores teh contents in the variables passed */
+void read_config_file (string &DATASET, string &QUERIES, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH) {
+    //open file
+    ifstream config_file("config.txt");
 
-    while (!file1.eof()) {
+    // Read the file line by line
+    string line;
+    while (getline(config_file, line)) {
+        istringstream Line(line);
+        string name, equal;
+        //parse each line and store the contents
+        if (Line >> name >> equal) {
 
-        int dimension;
-
-        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   //read size of int bytes and place them into dimension
-
-        if(file1.eof()){ 
-            break;
+            if (name == "DATASET") {
+                Line >> DATASET;
+            } else if (name == "QUERIES") {
+                Line >> QUERIES;
+            } else if (name == "R") {
+                Line >> R;
+            } else if (name == "L") {
+                Line >> L;
+            } else if (name == "a") {
+                Line >> a;
+            } else if (name == "k") {
+                Line >> k;
+            } else if (name == "th") {
+                Line >> th;
+            } else if (name == "L-SMALL") {
+                Line >> L_SMALL;
+            } else if (name == "R-SMALL") {
+                Line >> R_SMALL;
+            } else if (name == "R-STICH") {
+                Line >> R_STICH;
+            }
         }
-
-        vector<float> point(dimension);
-
-        file1.read(reinterpret_cast<char*>(point.data()), dimension * sizeof(float));
-
-        all_points.push_back(point);
-      
     }
+    //close the file 
+    config_file.close();
 
-    file1.close();
-    return 0;
-
-}
-
-
-
-/*Reads a .ivecs file and stores the data in the vector that gets passed as a parameter*/
-int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
-    
-    ifstream file1(file_path, ios::binary);
-    if (!file1) {
-        cout << "Can't open file" << endl;
-        return -1;
-    }
-
-    while (!file1.eof()) {
-
-        int dimension;
-
-        file1.read(reinterpret_cast<char*>(&dimension), sizeof(int));   
-
-        if(file1.eof()) { 
-            break;
-        }
-
-        vector<int> point(dimension);
-
-        file1.read(reinterpret_cast<char*>(point.data()), dimension * sizeof(float));
-
-        all_points.push_back(point);
-      
-    }
-
-    file1.close();
-    return 0;
-    
+    return;
 }
