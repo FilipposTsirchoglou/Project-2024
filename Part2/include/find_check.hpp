@@ -14,6 +14,9 @@ using namespace  std;
 vector<int> temp_vectors_equal(vector<GraphNode>&, vector<int>&);
 
 
+int vectors_equal(vector<GraphNode>&, vector<float>&);
+
+
 
 /*Takes the vamana graph, a query point , k and a search list of size L and returns a vector of the k closest neighbours of the query point*/
 vector<GraphNode> find_k_closest_for_single_query_point(vector<graph_node>&, vector<float>&, int, int, graph_node&);

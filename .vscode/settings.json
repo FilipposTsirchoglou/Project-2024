@@ -5,6 +5,8 @@
         "vector": "cpp",
         "iosfwd": "cpp",
         "iostream": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "utility": "cpp",
+        "forward_list": "cpp"
     }
 }

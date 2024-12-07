@@ -331,56 +331,92 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
 }
 
 
-
-/**/
 pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>& graph, vector<GraphNode>& s, graph_node& xq, int k, int l) {
   
   vector<GraphNode> l_closest = {};
   vector<GraphNode> visited = {};
 
-  for (int i = 0 ; i < s.size() ; i++) {
+  //find if current point inside the start points vector and query have at least one common filter
+  for (int i = 0 ; i < s.size() ; i++) {      //for most times this loop will run only once
 
     bool same = false;
     for (int j = 0 ; j < xq.filters.size() ; j++){
 
-      if (s[i]->filters[0] == xq.filters[j]){
-
+      if (s[i]->filters[0] == xq.filters[j]){     //check if they have at least one common filter
         same = true;
         break;
-
       }
-
     }
 
-    if (same) {
-        
-        l_closest.push_back(s[i]);
-
+    if (same == true) {         //if they have at least one common filter
+      l_closest.push_back(s[i]);      //l_closest starts with the start point (that has at least one common filter with the query)
     }
   }
-  cout << "lclosest size = " << l_closest.size() << endl;
-  vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
+  //for the construction of the vamana index at this point the l_closest vector has only the start point l_closest.size =1
+  /*if (l_closest.size() != 1) {
+    cout << "Error: l_closest.size != 1" << endl;
+   // exit(1);
+  }*/
+
+  //compute the L-V vector
+  vector<GraphNode> p = vectors_difference(l_closest, visited);
+  /*for (int i = 0 ; i < p.size() ; i++) {
+    cout << "p: { " << p[i]->id << " , }";
+  }
+  cout << endl;*/
   while (!p.empty()) {
 
-    GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
+    //find p_star inside p that has the min euclidian distance from xq
+    GraphNode p_star = find_min_eucl(p, xq);   
+   /* cout << "p_star: id " << p_star->id << "euclidian " << p_star->eucl_dist << endl;
+    if (p_star->eucl_dist = 0) {
+      printf("error eucl_dist = 0\n");
+      exit(1);
+    }*/
     visited.push_back(p_star);
   
     vector<GraphNode> temp_nout = {};
-    
+    //in temp_nout store the outgoing points of p_sar that have at least one common filter with the query and dont exit in the visited vector
     if (!(p_star->outgoing.empty())) {
 
-      for (forward_list<GraphNode>::iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {
+      for (forward_list<GraphNode>::iterator it = p_star->outgoing.begin(); it != p_star->outgoing.end(); ++it) {   //iterate over the outgoing list of p_star
         
-        auto cond1 = find(p_star->outgoing.begin(), p_star->outgoing.end(), p_star);
+        //auto cond1 = find(p_star->outgoing.begin(), p_star->outgoing.end(), p_star);
+        bool exists_in_visited = false;
+        for (int i=0 ; i<visited.size() ; i++) {
+
+          if ((*it) == visited[i]) {
+            exists_in_visited = true;
+            break;
+          }
+        }
+          
+        if(!exists_in_visited) {
+
+          for (int j=0 ; j<(*it)->filters.size() ; j++) {
+
+            bool have_at_least_one_common_filter = false;
+            for(int k=0 ; k<xq.filters.size() ; k++) {
+
+              if ( (*it)->filters[j] == xq.filters[k]) {
+                temp_nout.push_back((*it));
+                break;
+              }
+            }
+            break;
+          }
+        }
         
+
+        /*
         auto cond = find(visited.begin(), visited.end(), (*it));    // Search if the elements inside the outgoing list of p_star already exist in the visited vector
        
-        if ((cond == visited.end()) && (*it)->id != xq.id) {      /* SOS CHECK it->id != xq.id */     // If the element is not already in the visited list && the element is not the same as the xq element(we dont want to compute the euclidian distance between a point and itself)
+        if ((cond == visited.end()) && (*it)->id != xq.id) {      // SOS CHECK it->id != xq.id      // If the element is not already in the visited list && the element is not the same as the xq element(we dont want to compute the euclidian distance between a point and itself)
           
           (*it)->eucl_dist = euclidean((*it)->cords, xq.cords);       // Re-compute in case of eucl_dist = -1
           
-          for (int i = 0 ; i < (*it)->filters.size() ; i++) {   /*    make function bool found_common_filter SOSOSOSOS                 */
+          for (int i = 0 ; i < (*it)->filters.size() ; i++) {   //    make function bool found_common_filter SOSOSOSOS                 
             for (int j = 0; j < xq.filters.size(); j++) {
               
               if ((*it)->filters[i] == xq.filters[j]) {
@@ -392,27 +428,37 @@ pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_nod
               }
             }                                                               
           }     
-        }
+        }*/
       }
 
       for (int i = 0 ; i < temp_nout.size() ; i++) {
-          bool found = false;
-          for (int j=0 ; j < l_closest.size(); j++) {
+        bool found = false;
+        for (int j=0 ; j < l_closest.size(); j++) {
 
-            if (temp_nout[i] == l_closest[j]){
-              found = true;
-              break;
-            }
+          if (temp_nout[i] == l_closest[j]){
+            found = true;
+            break;
           }
+        }
 
-          if (!found) {
+        if (!found) {
             
-            l_closest.push_back(temp_nout[i]);
-            
-            
+          l_closest.push_back(temp_nout[i]);
+         /*cout << "l_closest after push_back: ";
+          for (int i = 0 ; i < l_closest.size() ; i++) {
+            cout << l_closest[i]->id << " , ";
           }
+          cout << endl;*/
+        }
       }
+    }     //L U tempnout(p_star) with check that the elements of tempnout dont already exist in l_closest
+
+    /*cout << "l_closest after for: ";
+    for (int i = 0 ; i < l_closest.size() ; i++) {
+      cout << l_closest[i]->id << " , ";
     }
+    cout << endl;*/
+
     if (l_closest.size() > l) {
             
       stable_sort(l_closest.begin(), l_closest.end(), compare_eucl);     // Sorts the l_closest vector using a custom comparator function 
@@ -421,16 +467,17 @@ pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_nod
     }
         
     p = vectors_difference(l_closest, visited);      // Recompute L-V before the condition is checked  in the while loop
-    
-  }
-
-  if (k !=0 ) {
-    if((!(l_closest.empty())) && l_closest.size() > k) {
-
-      l_closest.resize(k);        // Keeps the k closest elements of the vector that we want to return
-
+    /*for (int i = 0 ; i < p.size() ; i++) {
+      cout << "p: { " << p[i]->id << " , }";
     }
-  } 
+    cout << endl;*/
+  }
+    
+  if(  ( !(l_closest.empty()) ) && ( l_closest.size() > k ) ) {
+
+    l_closest.resize(k);        // Keeps the k closest elements of the vector that we want to return
+
+  }
 
   return {l_closest, visited};
 }
@@ -439,7 +486,7 @@ pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_nod
 
 
 /**/
-void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
+void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
     // If p is found inside vector v then remove it
     auto found_at_pos = find(v.begin(), v.end(), p);    
@@ -452,23 +499,41 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
         auto cond = find(v.begin(), v.end(), (*it));  // Search the v vector to find if the element at position it of the outgoing list exists
         
         if (cond == v.end()) {      // If you didnt find it         
-            v.push_back((*it));     
+          v.push_back((*it));     
         }
     }                   // V ← (V ∪ Nout(p)) \ {p}
-    
-    p->outgoing.clear();    // Nout(p) ← ∅
+    p->outgoing = {};
+      //p->outgoing.clear();    // Nout(p) ← ∅
 
-    found_at_pos = find(v.begin(), v.end(), p);    
-    if (found_at_pos != v.end()) {                   //ERASING P AGAIN JUST IN CASE
-        v.erase(found_at_pos);
-    }
+      /*found_at_pos = find(v.begin(), v.end(), p);    
+      if (found_at_pos != v.end()) {    
+          cout << "p was found again in v" << endl;
+          cout << "p: " << p->id << " eucl " << p->eucl_dist << " filter " << p->filters[0] << endl;
+
+          for (int i=0 ; i<v.size() ; i++) {
+              cout << "v: " << v[i]->id << " , ";
+          }
+          cout << endl; //ERASING P AGAIN JUST IN CASE
+          v.erase(found_at_pos);
+
+          for (int i=0 ; i<v.size() ; i++) {
+              cout << "v: " << v[i]->id << " , ";
+          }
+          cout << endl;
+      }*/
 
     while (!v.empty()) {
-
+      /*cout << "v: "; 
+      for (int i = 0 ; i < v.size() ; i++) {
+        cout << v[i]->id << " , ";
+      }
+      cout << endl;*/
       GraphNode p_star = find_min_eucl(v, *p);
+      //cout << "p_star: " << p_star->id << ", euclidian " << p_star->eucl_dist<< endl;
     
-      if (p->id != p_star->id) {              // MAYBE NOT NEEDED
-
+      auto cond5 = find(p->outgoing.begin(), p->outgoing.end(), p_star);
+      if ( (p->id != p_star->id) && (cond5 == p->outgoing.end()) ) {              // MAYBE NOT NEEDED
+        
         p->outgoing.push_front(p_star);           // Nout(p) ← Nout(p) ∪ {p_star}
 
       }
@@ -478,7 +543,7 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
           break;
       }
 
-      for (auto it = v.begin(); it != v.end();) {      // For (p' E V) do
+      for (auto it = v.begin(); it != v.end();){      // For (p' E V) do
         
         if (((*it)->filters[0] == p->filters[0]) && (p->filters[0] != p_star->filters[0])) {
           
@@ -495,7 +560,7 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
           ++it;
 
         }
-      }
+      } 
     }
 }
 
@@ -504,29 +569,30 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r){
 
 /**/
 vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th, map<int, int>& med) {
-  
-  //med = filteredFindMedoid(graph, th, filter_set);
+
+  //We have the medoid
+  //we have the filter set
 
   vector<int> sigma = give_random_permutation(graph.size());
 
-  for (int i = 0 ; i < sigma.size() ; i++) {
+  //itterate all the points of the vector in random order
+  for (int i = 0 ; i < sigma.size() ; i++) {      
     cout << i << endl;
-    int start_node = med[graph[sigma[i]].filters[0]];
+    int start_node = med[graph[sigma[i]].filters[0]];   //the pos of the medoid of the filter of the current node in the graph vector
 
-    graph_node node;       // mallon den xreiazetai kapou
+    /*check that nodes with the same filter have the same medoid*/
+
+    /*----------------------------------------------------------*/
    
-    vector<GraphNode> s = {};
-  
-    s.push_back(&graph[start_node]);
+    vector<GraphNode> s = {};     //holds the medoids of the filters of the current node. In our case it will hold only one element
+    s.push_back(&graph[start_node]);    
 
-    pair<vector<GraphNode>, vector<GraphNode>> res;
-    
-    res = filteredGreedySearch(graph, s, graph[sigma[i]], 0, L);
-
+    //call filtered greedy for start node s, xq = the current point from the random permutation, k=0 and L
+    pair<vector<GraphNode>, vector<GraphNode>> res = filteredGreedySearch(graph, s, graph[sigma[i]], 0, L);
     res.first = {};
 
     filteredRobustPrune(&graph[sigma[i]], res.second, a, R);
-
+  
     for (forward_list<GraphNode>::iterator it = graph[sigma[i]].outgoing.begin() ; it != graph[sigma[i]].outgoing.end() ; ++it) {
 
       if ((*it)->id != graph[sigma[i]].id) {
@@ -542,7 +608,7 @@ vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int
         
         for (forward_list<GraphNode>::iterator it1 = graph[sigma[i]].outgoing.begin() ; it1 != graph[sigma[i]].outgoing.end() ; ++it1) {
 
-          temp_vec.push_back((*it));
+          temp_vec.push_back((*it1));
 
         }
 
@@ -552,7 +618,5 @@ vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int
     }
 
   }
-
   return graph;
-
 }
