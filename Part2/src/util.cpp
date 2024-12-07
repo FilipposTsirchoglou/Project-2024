@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <queue>
+#include <algorithm>
 
 
 #include <assert.h>
@@ -90,4 +91,35 @@ GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq) {
     
     return p_star;
     
+}
+
+
+
+/*Returns the filter set of the data set vector passed*/
+vector<int> find_filter_set(vector<vector<float>> &nodes) {
+
+    vector<int> filter_set = {};
+
+    for(int i = 0 ; i < nodes.size() ; i++) {
+
+        bool filter_found = false;
+            for(int j = 0 ; j < filter_set.size() ; j++) {
+
+                if (nodes[i][0] == filter_set[j]) {
+
+                filter_found = true;
+                break;
+
+                }
+            }
+    
+        if (filter_found == false) {
+
+            filter_set.push_back(nodes[i][0]);
+
+        }
+    }
+    sort(filter_set.begin(), filter_set.end());  //now filters are in ascending order
+
+    return filter_set;
 }

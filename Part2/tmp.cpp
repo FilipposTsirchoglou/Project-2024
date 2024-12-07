@@ -12,10 +12,11 @@
 #include <algorithm> 
 #include "include/vamana.hpp"
 #include "include/find_check.hpp" 
+#include "include/file_operations.hpp"
 
 using namespace std;
 
-void ReadBin(const string &file_path, const int num_dimensions, vector<vector<float>> &data) {
+/*void ReadBin(const string &file_path, const int num_dimensions, vector<vector<float>> &data) {
   
   cout << "Reading Data: " << file_path << endl;
   ifstream ifs;
@@ -49,11 +50,29 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
   ifs.close();
   std::cout << "Finish Reading Data" << endl;
 
-}
+}*/
 
 
 
 int main(void) {
+
+  //Read the configuration file and store its values
+  string DATA_FILE, QUERIES_FILE;
+  int L, R, k, th, L_small, R_small, R_stich;
+  float a;
+
+  read_config_file(DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich);
+  /*cout << "DATA: " << DATA_FILE <<endl;
+  cout << "QUERIES: " << QUERIES_FILE <<endl;
+  cout << "R: " << R <<endl;
+  cout << "L: " << L <<endl;
+  cout << "a: " << a <<endl;
+  cout << "k: " << k <<endl;
+  cout << "th: " << th <<endl;
+  cout << "L_small: " << L_small <<endl;
+  cout << "R_small: " << R_small <<endl;
+  cout << "R_stich: " << R_stich <<endl;*/
+
 
   /*dummy node of id -1 (it is a placeholder)*/
   graph_node dummy_node;
@@ -73,11 +92,15 @@ int main(void) {
 
   //calculate the filter set MAKE FUNCTION
 
-  vector<int> filter_set = {};
+  //vector<int> filter_set = {};
+
+  vector<int> filter_set = find_filter_set(nodes);
+
 
   for(int i = 0 ; i < nodes.size() ; i++) {
 
     //filter set creation
+    /*
     bool filter_found = false;
     for(int j = 0 ; j < filter_set.size() ; j++) {
 
@@ -94,7 +117,7 @@ int main(void) {
 
       filter_set.push_back(nodes[i][0]);
 
-    }
+    }*/
     
     //graph creation
     graph_node g;
@@ -112,7 +135,7 @@ int main(void) {
 
   }
 
-  sort(filter_set.begin(), filter_set.end());  //now filters are in ascending order
+  //sort(filter_set.begin(), filter_set.end());  //now filters are in ascending order
 
 
   vector<int> how_many_points_by_filter;    //shows how many points each filter has eg. filter[1] has the numver of filters for the filter 1
@@ -134,7 +157,7 @@ int main(void) {
 
 
   //call vamana to return the vamana indexing graph
-  vector<graph_node> vamana_filtered = filteredVamana(graph, 1.1, 200, 12, filter_set, 1, med);
+  vector<graph_node> vamana_filtered = filteredVamana(graph, a, L, R, filter_set, th, med);
 
   //groundtruth reading
   vector<vector<float>> gt;
@@ -145,7 +168,7 @@ int main(void) {
 
   for (int i = 0 ; i < queries.size() ; i++) {    //for every query 
  
-    if (queries[i][0] == 0) {     //thas is of type 1
+    if (queries[i][0] == 1) {     //thas is of type 1
       cout << "query: " << i <<endl;
       count++;
   
@@ -166,23 +189,23 @@ int main(void) {
 
       vector<GraphNode> s1;
     
-      //s1.push_back(&vamana_filtered[med[queries[i][1]]]);
+      s1.push_back(&vamana_filtered[med[queries[i][1]]]);
 
-      for (auto it=med.begin() ; it!=med.end() ; ++it) {
+     /*for (auto it=med.begin() ; it!=med.end() ; ++it) {
         s1.push_back(&vamana_filtered[it->second]);
-      }
+      }*/
 
-      vector<GraphNode> k_closest_results;
+      /*vector<GraphNode> k_closest_results;
       
       for (int j=0 ; j<filter_set.size() ; j++ ) {
         vector<GraphNode> s_temp;
         s_temp.push_back(&vamana_filtered[med[filter_set[j]]]);
-        pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(vamana_filtered, s_temp, vamana_filtered[vamana_filtered.size() - 1], 1, 150);
+        pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(vamana_filtered, s_temp, vamana_filtered[vamana_filtered.size() - 1], 1, L);
         k_closest_results.push_back(result1.first[0]);
-      }
+      }*/
       
       
-      pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, k_closest_results, vamana_filtered[vamana_filtered.size() - 1], 100, 200);
+      pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, 200);
       vector<GraphNode> k_closest = result.first;
       
       

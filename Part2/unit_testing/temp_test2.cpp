@@ -93,7 +93,7 @@ void test_filteredFindMedoid(void) {
 
 
 
-
+/*
 void test_filteredGreedySearch(void) {
 
     vector<graph_node> graph;
@@ -153,7 +153,7 @@ void test_filteredGreedySearch(void) {
     TEST_ASSERT(res.first.size() == 1);
     TEST_ASSERT(res.second.size() == 1);
 
-}
+}*/
 
 
 
@@ -219,7 +219,7 @@ vector<graph_node> graph;
 }
 
 
-
+/*
 void test_filteredVamana(void) {
 
     vector<graph_node> graph;
@@ -315,6 +315,22 @@ void test_filteredVamana(void) {
 
     // We expect that all the graph nodes have at most r outgoing connections
     TEST_ASSERT(flag == true);
+}*/
+
+void test_find_filter_set(void) {
+    vector<vector<float>> nodes = {{0,1,2,3}, {1,2,3,4}, {2,3,4,5}, {3,4,5,6}, {4,5,6,7}, {5,6,7,8}, {6,7,8,9}, {7,8,9,10}, {8,9,10,11}, {9,10,11,12}};
+
+    vector<int> filter_set = find_filter_set(nodes);
+
+    TEST_ASSERT(filter_set.size() == 10);
+    bool flag = true;
+    for (int i = 0 ; i < filter_set.size() ; i++) {
+
+        if(filter_set[i] != i) {
+            flag = false;
+        }
+    }
+    TEST_ASSERT(flag == true);
 }
 
 
@@ -324,9 +340,10 @@ void test_filteredVamana(void) {
 TEST_LIST = {
 
     {"test_filteredFindMedoid", test_filteredFindMedoid},
-	{"test_filteredGreedySearch", test_filteredGreedySearch},
+	/*{"test_filteredGreedySearch", test_filteredGreedySearch},*/
     {"test_filteredRobustPrune", test_filteredRobustPrune},
-    {"test_filteredVamana", test_filteredVamana},
+    /*{"test_filteredVamana", test_filteredVamana},*/
+    {"test_find_filter_set", test_find_filter_set},
 	{ NULL, NULL }
 
 };

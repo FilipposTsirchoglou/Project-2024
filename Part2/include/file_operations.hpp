@@ -4,16 +4,11 @@
 #include <string>
 #include <vector>
 
-
-
 using namespace std;
 
+/*Reads a binary file and stores the contents in the vector passed*/
+void ReadBin(const string &file_path, const int num_dimensions, vector<vector<float>> &data);
 
 
-/*Reads a .fvecs file and stores the data in the vector that gets passed as a parameter*/
-int read_fvec_files(const string&, vector<vector<float>>&);
-
-
-
-/*Reads a .ivecs file and stores the data in the vector that gets passed as a parameter*/
-int read_ivec_files(const string&, vector<vector<int>>&);
+/*Reads the config file ans stores teh contents in the variables passed */
+void read_config_file (string &DATASET, string &QUERIES, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH);
