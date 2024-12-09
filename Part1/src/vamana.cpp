@@ -16,6 +16,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
     while(!p.empty()) {      // While L\V != empty set
 
+        //GraphNode tmp_xq_ptr = &xq;
        GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
       
         // Update L ← L ∪ Nout(p_star) andV ← V ∪ {p_star} 

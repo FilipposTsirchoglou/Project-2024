@@ -1,11 +1,11 @@
 DATASET = dummy-data.bin
 QUERIES = dummy-queries.bin
-R = 12
+R = 35
 L = 200
 a = 1.1
 k = 100
 th = 1
-L-SMALL = 3
-R-SMALL = 3
+L-SMALL = 200
+R-SMALL = 35
 R-STICH = 3
-METHOD-TYPE = F0  
+METHOD-TYPE = S1  

@@ -73,3 +73,39 @@ int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
     return 0;
     
 }
+
+/*Reads the config file and stores teh contents in the variables passed */
+void read_config_file (string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k) {
+    //open file
+    ifstream config_file("config.txt");
+
+    // Read the file line by line
+    string line;
+    while (getline(config_file, line)) {
+        istringstream Line(line);
+        string name, equal;
+        //parse each line and store the contents
+        if (Line >> name >> equal) {
+
+            if (name == "DATASET") {
+                Line >> DATASET;
+            } else if (name == "QUERIES") {
+                Line >> QUERIES;
+            } else if (name == "GROUNDTRUTH") {
+                Line >> GROUNDTRUTH;
+            } else if (name == "R") {
+                Line >> R;
+            } else if (name == "L") {
+                Line >> L;
+            } else if (name == "a") {
+                Line >> a;
+            } else if (name == "k") {
+                Line >> k;
+            }
+        }
+    }
+    //close the file 
+    config_file.close();
+
+    return;
+}

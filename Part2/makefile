@@ -8,8 +8,8 @@ CFLAGS = -O2 -I$(LIB)  # Optimization flag and include path for headers
 OBJS = $(SRC)/file_operations.o $(SRC)/util.o $(SRC)/vamana.o $(SRC)/main.o $(SRC)/find_check.o
 EXEC = main
 
-TEST_OBJS = $(SRC)/util.o $(SRC)/vamana.o $(SRC)/find_check.o
-TESTS_EXEC = temp_tests
+TEST_OBJS = $(SRC)/util.o $(SRC)/vamana.o $(SRC)/find_check.o $(SRC)/file_operations.o
+TESTS_EXEC = temp_test2
 
 # Pattern rule for compiling object files
 $(SRC)/%.o: $(SRC)/%.cpp
@@ -20,8 +20,8 @@ $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) -o $(EXEC) $(OBJS)
 
 # Test executable
-$(TESTS_EXEC): $(TESTS)/temp_tests.cpp $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(TEST_OBJS) $(TESTS)/temp_tests.cpp -o $(TESTS_EXEC)
+$(TESTS_EXEC): $(TESTS)/temp_test2.cpp $(TEST_OBJS)
+	$(CC) $(CFLAGS) $(TEST_OBJS) $(TESTS)/temp_test2.cpp -o $(TESTS_EXEC)
 
 # Run tests
 tests: $(TESTS_EXEC)

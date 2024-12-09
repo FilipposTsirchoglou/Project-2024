@@ -15,7 +15,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
     while(!p.empty()) {      // While L\V != empty set
-
+      //GraphNode tmp_zq = &xq;
        GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
       
         // Update L ← L ∪ Nout(p_star) andV ← V ∪ {p_star} 
@@ -38,7 +38,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         
         p = vectors_difference(l_closest, visited);      // Recompute L-V before the condition is checked  in the while loop
     }
-
+    if( !(l_closest.empty()) && (l_closest.size() > k))
     l_closest.resize(k);        // Keeps the k closest elements of the vector that we want to return
 
     return {l_closest, visited};
@@ -147,40 +147,49 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
         g.cords = all_points[i];
         graph.push_back(g);
     }
-    
-    for(int i = 0 ; i < graph.size() ; i++) {
-        int counter=0;      // Counter for counting correct outgoing connections for every graph node
+    if (graph.size() >= r) {    //FILIPPOS CHECK THAT IT IS CORRECT
+      for(int i = 0 ; i < graph.size() ; i++) {
+          int counter=0;      // Counter for counting correct outgoing connections for every graph node
 
-        do {
-           int edge_to_id = get_random_number(graph.size() - 1);
+          do {
+            int edge_to_id = get_random_number(graph.size() - 1);
 
-           if(edge_to_id != graph[i].id) {             // If the id we want to connect is not the same as the source node id
-                                                    
-                if(graph[i].outgoing.empty()) {              // If the list is empty do the connection
-                    GraphNode edge = &graph[edge_to_id];   
-                    graph[i].outgoing.push_front(edge);
-                    counter++;
-                }
-                else {
-                    bool flag=true;     // Flag that shows the id of the node we want to connect does not already exist
+            if(edge_to_id != graph[i].id) {             // If the id we want to connect is not the same as the source node id
+                                                      
+                  if(graph[i].outgoing.empty()) {              // If the list is empty do the connection
+                      GraphNode edge = &graph[edge_to_id];   
+                      graph[i].outgoing.push_front(edge);
+                      counter++;
+                  }
+                  else {
+                      bool flag=true;     // Flag that shows the id of the node we want to connect does not already exist
 
-                    for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it) {
+                      for(forward_list<GraphNode>:: iterator it = graph[i].outgoing.begin(); it != graph[i].outgoing.end(); ++it) {
 
-                        if((*it)->id == edge_to_id) { // The id already exists 
-                            flag=false;
-                            break;
-                        }
-                    }
+                          if((*it)->id == edge_to_id) { // The id already exists 
+                              flag=false;
+                              break;
+                          }
+                      }
 
-                    if(flag==true) {
-                        GraphNode edge = &graph[edge_to_id];   
-                        graph[i].outgoing.push_front(edge);
-                        counter++;
-                    }
+                      if(flag==true) {
+                          GraphNode edge = &graph[edge_to_id];   
+                          graph[i].outgoing.push_front(edge);
+                          counter++;
+                      }
 
-                }
-           }
-        } while(counter !=r);  // If we did r connections we stop
+                  }
+            }
+          } while(counter !=r);  // If we did r connections we stop
+      }
+    } else {
+      for (int i=0 ; i<graph.size() ; i++) {
+        for (int j=0 ; j<graph.size() ; j++) {
+          if (i !=j ) {
+            graph[i].outgoing.push_front(&graph[j]);
+          }
+        }
+      }
     }
 }
 

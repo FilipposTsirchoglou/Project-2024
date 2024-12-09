@@ -2,6 +2,7 @@
 #include "../include/util.hpp"
 #include "../include/vamana.hpp"
 #include "../include/find_check.hpp"
+#include "../include/file_operations.hpp"
 #include <iostream>
 #include <map>
 
@@ -92,8 +93,6 @@ void test_filteredFindMedoid(void) {
 }
 
 
-
-/*
 void test_filteredGreedySearch(void) {
 
     vector<graph_node> graph;
@@ -133,8 +132,8 @@ void test_filteredGreedySearch(void) {
     g4.filters.push_back(4);
     graph.push_back(g4);
 
-    vector<graph_node> s;
-    s.push_back(graph[0]);
+    vector<GraphNode> s;
+    s.push_back(&graph[0]);
 
     int k = 1;
     int l = 2;
@@ -153,7 +152,7 @@ void test_filteredGreedySearch(void) {
     TEST_ASSERT(res.first.size() == 1);
     TEST_ASSERT(res.second.size() == 1);
 
-}*/
+}
 
 
 
@@ -219,7 +218,7 @@ vector<graph_node> graph;
 }
 
 
-/*
+
 void test_filteredVamana(void) {
 
     vector<graph_node> graph;
@@ -315,7 +314,7 @@ void test_filteredVamana(void) {
 
     // We expect that all the graph nodes have at most r outgoing connections
     TEST_ASSERT(flag == true);
-}*/
+}
 
 void test_find_filter_set(void) {
     vector<vector<float>> nodes = {{0,1,2,3}, {1,2,3,4}, {2,3,4,5}, {3,4,5,6}, {4,5,6,7}, {5,6,7,8}, {6,7,8,9}, {7,8,9,10}, {8,9,10,11}, {9,10,11,12}};
@@ -334,7 +333,15 @@ void test_find_filter_set(void) {
 }
 
 
+void test_read_config_file(void) {
 
+    string DATA_FILE, QUERIES_FILE, METHOD_TYPE;
+    int L, R, k, th, L_small, R_small, R_stich;
+    float a;
+    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);
+
+    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && R==0 && L==0 && a==0 && k==0 &&th==0);
+}
 
 
 TEST_LIST = {
@@ -344,6 +351,8 @@ TEST_LIST = {
     {"test_filteredRobustPrune", test_filteredRobustPrune},
     /*{"test_filteredVamana", test_filteredVamana},*/
     {"test_find_filter_set", test_find_filter_set},
+    {"test_read_config_file", test_read_config_file},
+
 	{ NULL, NULL }
 
 };
