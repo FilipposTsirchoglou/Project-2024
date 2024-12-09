@@ -14,8 +14,8 @@ int main(void){
     string DATA, QUERIES, GROUNDTRUTH;
     int R, L, k;
     float a;
-    read_config_file(DATA, QUERIES, GROUNDTRUTH, R, L, a, k);
-    /*
+    read_config_file("config.txt", DATA, QUERIES, GROUNDTRUTH, R, L, a, k);
+    
 
     
     /*Read the base file and store the data in the vector all_points*/

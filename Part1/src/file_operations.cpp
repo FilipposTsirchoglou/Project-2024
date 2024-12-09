@@ -75,9 +75,9 @@ int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
 }
 
 /*Reads the config file and stores teh contents in the variables passed */
-void read_config_file (string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k) {
+void read_config_file (string CONFIG, string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k) {
     //open file
-    ifstream config_file("config.txt");
+    ifstream config_file(CONFIG);
 
     // Read the file line by line
     string line;

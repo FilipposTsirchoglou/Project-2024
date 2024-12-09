@@ -36,7 +36,7 @@ int main(void) {
     int L, R, k, th, L_small, R_small, R_stich;
     float a;
 
-    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0
+    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
     cout << "DATA_FILE: " << DATA_FILE << " QUERIES_FILE: " << QUERIES_FILE << " R: " << R << " L: " << L << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << endl;
     //cout << "L: " << L << " R: " << R << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << endl;
@@ -71,9 +71,9 @@ int main(void) {
 
     }
 
-    vector<int> how_many_points_by_filter;    //shows how many points each filter has eg. filter[1] has the numver of filters for the filter 1
+    vector<int> how_many_points_by_filter;    // Shows how many points each filter has eg. filter[1] has the numver of filters for the filter 1
 
-    for (int i=0 ; i<filter_set.size() ; i++) {   //for every filter
+    for (int i=0 ; i<filter_set.size() ; i++) {   // For every filter
 
         int filter_count = 0;
         for (int j=0 ; j<nodes.size() ; j++) {
@@ -84,10 +84,10 @@ int main(void) {
         how_many_points_by_filter.push_back(filter_count);
     }
 
-    map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   //has one medoid for every filter
+    map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
     cout << METHOD_TYPE << endl;
     if (METHOD_TYPE == "F0" || METHOD_TYPE == "F1") {
-        //call vamana to return the vamana indexing graph
+        // Call Filtered Vamana to return the Filtered Vamana indexing graph
         cout << "in F0 or F1" << endl;  
         vector<graph_node> vamana_filtered = filteredVamana(graph, a, L, R, filter_set, th, med);
 
@@ -99,11 +99,11 @@ int main(void) {
 
             for (int i=0 ; i<queries.size() ; i++) {
 
-                if (queries[i][0] == 1) {     //thas is of type 1
+                if (queries[i][0] == 1) {     // Type 1
                     cout << "query: " << i <<endl;
                     count++;
             
-                    graph_node gq;              //create a temorary graph_node
+                    graph_node gq;              // Create a temporary graph_node
                     gq.id = vamana_filtered.size();
                     for(int j = 4 ; j < queries[i].size() ; j++) {
                         gq.cords.push_back(queries[i][j]);
@@ -115,26 +115,26 @@ int main(void) {
                         gq.filters.push_back(filter_set[k]);
                     }
 
-                    vamana_filtered.push_back(gq);        //push the graph_node in the graph vector
+                    vamana_filtered.push_back(gq);        // Push the graph_node in the graph vector
 
                     vector<GraphNode> s1;
                 
                     s1.push_back(&vamana_filtered[med[queries[i][1]]]);                
 
-                    //run the filtered greedy search to find k closest neighbours
+                    // Run the filtered greedy search to find k closest neighbours
                     pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, 200);
                     vector<GraphNode> k_closest = result.first;
                 
                     vamana_filtered.erase(vamana_filtered.end()-1);
 
-                    //if kclosest is less than k fill it with dummy nodes
+                    // If kclosest is less than k fill it with dummy nodes
                     if (k_closest.size() < 100) {
                         for (int j = k_closest.size() ; j < 100 ; j++) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
                 
-                    //search the id of the corresponding query in the groundtruth
+                    // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
                         if (gt[j][0] == i) {
@@ -143,10 +143,10 @@ int main(void) {
                         }
                     }
 
-                    //find how many points are same between the algrithms result and the groundtruth
+                    // Find how many points are same between the algrithms result and the groundtruth
                     int same_points = vectors_equal(k_closest, gt[id]); 
 
-                    //calculate recall
+                    // Calculate recall
                     float recall = (float)same_points / 100.0;
                     recall_sum += recall;
                 } 
@@ -159,11 +159,11 @@ int main(void) {
 
             for (int i=0 ; i<queries.size() ; i++) {
 
-                if (queries[i][0] == 0) {     //thas is of type 0
+                if (queries[i][0] == 0) {     // Type 0
                     cout << "query: " << i <<endl;
                     count++;
                     
-                    //create and initialize a temmporary graph node
+                    // Create and initialize a temmporary graph node
                     graph_node gq;              
                     gq.id = vamana_filtered.size();
                     for(int j = 4 ; j < queries[i].size() ; j++) {
@@ -174,11 +174,11 @@ int main(void) {
                     for (int k=0 ; k<filter_set.size() ; k++) {
                         gq.filters.push_back(filter_set[k]);
                     }      
-                    vamana_filtered.push_back(gq);        //push the graph_node in the graph vector
+                    vamana_filtered.push_back(gq);        // Push the graph_node in the graph vector
 
                     vector<GraphNode> s1;
                 
-                    //trick to achieve better recall in filtered queries
+                    // Trick to achieve better recall in filtered queries
                     for (auto it=med.begin() ; it!=med.end() ; ++it) {
                         s1.push_back(&vamana_filtered[it->second]);
                     }
@@ -192,20 +192,20 @@ int main(void) {
                         k_closest_results.push_back(result1.first[0]);
                     }          
 
-                    //run the filtered greedy search to find k closest neighbours
+                    // Run the filtered greedy search to find k closest neighbours
                     pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, k_closest_results, vamana_filtered[vamana_filtered.size() - 1], k, L);
                     vector<GraphNode> k_closest = result.first;
                 
                     vamana_filtered.erase(vamana_filtered.end()-1);
 
-                    //if kclosest is less than k fill it with dummy nodes
+                    // If kclosest is less than k fill it with dummy nodes
                     if (k_closest.size() < 100) {
                         for (int j = k_closest.size() ; j < 100 ; j++) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
                 
-                    //search the id of the corresponding query in the groundtruth
+                    // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
                         if (gt[j][0] == i) {
@@ -214,10 +214,10 @@ int main(void) {
                         }
                     }
 
-                    //find how many points are same between the algrithms result and the groundtruth
+                    // Find how many points are same between the algrithms result and the groundtruth
                     int same_points = vectors_equal(k_closest, gt[id]); 
 
-                    //calculate recall
+                    // Calculate recall
                     float recall = (float)same_points / 100.0;
                     recall_sum += recall;
                 } 
@@ -228,99 +228,239 @@ int main(void) {
         }  
     } else if (METHOD_TYPE == "S0" || METHOD_TYPE == "S1") {
 
-        int count = 0;
-        float recall_sum = 0;
-        if (METHOD_TYPE == "S1") {
-            vector<vector<graph_node>> stich_vamana_graph;
-            vector<GraphNode> medoids;
-            cout << "filter set" << endl;
-            for (int i=0 ; i<filter_set.size() ; i++) {
-                cout << filter_set[i] << endl;
-            }
-            for (int i=0 ; i<filter_set.size() ; i++) {
-                vector<vector<float>> all_points_with_same_filter;
-                for (int j=0 ; j<nodes.size() ; j++) {
-                    if (filter_set[i] == nodes[j][0]) {
-                    
-                        all_points_with_same_filter.push_back(nodes[j]);
+        
+        if (METHOD_TYPE == "S0") {
 
-                    }
-                }
-                cout << i << " " << all_points_with_same_filter.size() << endl; 
-                //data set now is all_points_with_same_filter
-                GraphNode med = NULL;
-                vector<graph_node> vamana_graph = vamana(all_points_with_same_filter, a, L, R, med);
-                stich_vamana_graph.push_back(vamana_graph);
-                medoids.push_back(med);
+            int count = 0;
+            float recall_sum = 0;
+            
+            // Data set now is all_points_with_same_filter*/
+            vector<vector<float>> all_points;
+            for (int i = 0 ; i < graph.size() ; i++) {
+                
+                all_points.push_back(graph[i].cords);
+                
             }
 
-            //at this point the stich vamana has been created
+            GraphNode med = NULL;
+
+            vector<graph_node> stitched_vamana_graph = vamana(all_points, a, L, R, med);
+                
+
+            // At this point the stitched vamana has been created
 
             for (int i=0 ; i<queries.size() ; i++) {
                 
-                if (queries[i][0] == 1) {
+                if (queries[i][0] == 0) {
+
                     if (queries[i][1] > filter_set.size()) {
+
                         continue;
+
                     }
 
                     cout << "query " << i << endl;
+
                     count++;
+
                     int filter = queries[i][1];
 
-                    //temporary graph_noode creation
+                    // Temporary graph_node creation
                     graph_node gq;
-                    gq.id = stich_vamana_graph[filter].size();
+                    
+                    gq.id = graph.size();
                     gq.filters.push_back(filter);
                     gq.eucl_dist = -1;
+
                     for (int k=4 ; k<queries[i].size() ; k++) {
+
                         gq.cords.push_back(queries[i][k]);
+
                     }
+
                     gq.outgoing = {};
 
-                    stich_vamana_graph[filter].push_back(gq);
+                    stitched_vamana_graph.push_back(gq);
                     
                     int id_temp = gq.id;
 
-                    pair<vector<GraphNode>, vector<GraphNode>> greedy_result_for_filter = greedy_search(stich_vamana_graph[filter], stich_vamana_graph[filter][id_temp], stich_vamana_graph[filter][stich_vamana_graph[filter].size()-1], k, L);
+                    pair<vector<GraphNode>, vector<GraphNode>> greedy_result_for_filter = greedy_search(stitched_vamana_graph, *med, stitched_vamana_graph[stitched_vamana_graph.size()-1], k, L);
+                    
                     vector<GraphNode> k_closest_for_query = greedy_result_for_filter.first;
                     
+                    stitched_vamana_graph.erase(stitched_vamana_graph.end()-1);
 
-                    cout << "in main" << endl;
-                    //cout << endl;
-
-                    stich_vamana_graph[filter].erase(stich_vamana_graph[filter].end()-1);
-
-                    //if kclosest is less than k fill it with dummy nodes
+                    // If kclosest is less than k fill it with dummy nodes
                     if (k_closest_for_query.size() < 100) {
+
                         for (int j = k_closest_for_query.size() ; j < 100 ; j++) {
+
                             k_closest_for_query.push_back(&dummy_node);
+
                         }
                     }
                 
-                    //search the id of the corresponding query in the groundtruth
+                    // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
+
                         if (gt[j][0] == i) {
+
                             id = j;
                             break;
+
                         }
                     }
 
-                    //find how many points are same between the algrithms result and the groundtruth
+                    // Find how many points are same between the algrithms result and the groundtruth
                     cout << "same points" << endl;
                     int same_points = vectors_equal(k_closest_for_query, gt[id]); 
 
-                    //calculate recall
+                    // Calculate recall
                     float recall = (float)same_points / 100.0;
                     cout  << recall << endl;
                     recall_sum += recall;
 
                 }
             } 
+
             float avg_recall =(float)(recall_sum / count);
-            cout << "Average recall for Type 0 queries using filtered vamana: " << avg_recall << endl;
+            cout << "Average recall for Type 0 queries using stitched vamana: " << avg_recall << endl;
+        }
+        else if (METHOD_TYPE == "S1") {
+            
+            int count = 0;
+            float recall_sum = 0;
+            vector<vector<graph_node>> stich_vamana_graph;
+            vector<GraphNode> medoids;
+
+            cout << "filter set" << endl;
+
+            for (int i=0 ; i<filter_set.size() ; i++) {
+
+                cout << filter_set[i] << endl;
+
+            }
+
+            for (int i=0 ; i<filter_set.size() ; i++) {
+
+                vector<vector<float>> all_points_with_same_filter;
+
+                for (int j=0 ; j<nodes.size() ; j++) {
+
+                    if (filter_set[i] == nodes[j][0]) {
+                    
+                        all_points_with_same_filter.push_back(nodes[j]);
+
+                    }
+                }
+
+                cout << i << " " << all_points_with_same_filter.size() << endl; 
+                // Data set now is all_points_with_same_filter
+               
+                GraphNode med = NULL;
+                vector<graph_node> vamana_graph = vamana(all_points_with_same_filter, a, L, R, med);
+                
+
+                stich_vamana_graph.push_back(vamana_graph);
+
+                for (int n = 0; n < stich_vamana_graph.size(); n++){
+                    cout << "GRAPH " << n << " HAS ";
+                    for (int m = 0; m < stich_vamana_graph[n].size(); m++){
+                        cout << stich_vamana_graph[n][m].id << " , ";
+                    }
+                    cout << endl;
+                }
+                
+                
+            }
+
+            // At this point the stitched vamana has been created
+
+            for (int i=0 ; i<queries.size() ; i++) {
+                
+                if (queries[i][0] == 1) {
+
+                    if (queries[i][1] > filter_set.size()) {
+
+                        continue;
+
+                    }
+
+                    cout << "query " << i << endl;
+
+                    count++;
+
+                    int filter = queries[i][1];
+
+                    // Temporary graph_noode creation
+                    graph_node gq;
+                    gq.id = stich_vamana_graph[filter].size();
+                    gq.filters.push_back(filter);
+                    gq.eucl_dist = -1;
+
+                    for (int k=4 ; k<queries[i].size() ; k++) {
+
+                        gq.cords.push_back(queries[i][k]);
+
+                    }
+
+                    gq.outgoing = {};
+
+                    stich_vamana_graph[filter].push_back(gq);
+                    
+                    int id_temp = gq.id;
+                    
+                    GraphNode med = find_medoid(stich_vamana_graph[filter]);
+
+                    pair<vector<GraphNode>, vector<GraphNode>> greedy_result_for_filter = greedy_search(stich_vamana_graph[filter], stich_vamana_graph[filter][id_temp], stich_vamana_graph[filter][stich_vamana_graph[filter].size()-1], k, L);
+                    
+                    vector<GraphNode> k_closest_for_query = greedy_result_for_filter.first;
+
+
+                    stich_vamana_graph[filter].erase(stich_vamana_graph[filter].end()-1);
+
+                    // If kclosest is less than k fill it with dummy nodes
+                    if (k_closest_for_query.size() < 100) {
+
+                        for (int j = k_closest_for_query.size() ; j < 100 ; j++) {
+
+                            k_closest_for_query.push_back(&dummy_node);
+
+                        }
+                    }
+                
+                    // Search the id of the corresponding query in the groundtruth
+                    int id=-10; 
+
+                    for (int j=0 ; j<gt.size() ; j++) {
+
+                        if (gt[j][0] == i) {
+
+                            id = j;
+                            break;
+
+                        }
+                    }
+
+                    // Find how many points are same between the algorithms result and the groundtruth
+                    
+                    int same_points = vectors_equal(k_closest_for_query, gt[id]); 
+
+                    // Calculate recall
+                    float recall = (float)same_points / 100.0;
+                    cout  << recall << endl;
+                    recall_sum += recall;
+
+                }
+            } 
+
+            float avg_recall = (float)(recall_sum / count);
+            cout << "Average recall for Type 1 queries using stitched vamana: " << avg_recall << endl;
+
         }
 
     }
+
     return 0;
 }

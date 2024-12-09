@@ -1,5 +1,8 @@
 #include "acutest.h"
-#include "temp_header.hpp"
+#include "../include/util.hpp"
+#include "../include/vamana.hpp"
+#include "../include/find_check.hpp"
+#include "../include/file_operations.hpp"
 #include <iostream>
 
 using namespace std;
@@ -615,6 +618,22 @@ void test_vectors_differnce(void) {
 
 
 
+
+
+void test_read_config_file(void) {
+
+    string DATA_FILE, QUERIES_FILE, GROUNDTRUTH;
+    int L, R, k;
+    float a;
+    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, GROUNDTRUTH, R, L, a, k);
+
+    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && GROUNDTRUTH == "test" && R==0 && L==0 && a==0 && k==0);
+}
+
+
+
+
+
 TEST_LIST = {
 	{ "test_euclidean", test_euclidean },
     { "test_compare_eucl", test_compare_eucl},
@@ -628,6 +647,7 @@ TEST_LIST = {
     { "test_temp_vectors_equal", test_temp_vectors_equal},
     { "test_vamana", test_vamana},
     { "test_vectors_differnce" , test_vectors_differnce},
+    { "test_read_config_file" , test_read_config_file},
 	{ NULL, NULL }
 };
 

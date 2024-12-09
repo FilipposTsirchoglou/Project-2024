@@ -19,5 +19,6 @@ int read_fvec_files(const string&, vector<vector<float>>&);
 int read_ivec_files(const string&, vector<vector<int>>&);
 
 
+/*Reads the config file and stores teh contents in the variables passed */
+void read_config_file (string, string &, string &, string &, int &, int &, float &, int &);
 
-void read_config_file (string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k);
