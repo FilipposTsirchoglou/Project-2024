@@ -1,0 +1,11 @@
+DATASET = test
+QUERIES = test
+R = 0
+L = 0
+a = 0
+k = 0
+th = 0
+L-SMALL = 0
+R-SMALL = 0
+R-STICH = 0
+METHOD-TYPE = S0  
