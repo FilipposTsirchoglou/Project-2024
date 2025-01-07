@@ -14,6 +14,8 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     vector<GraphNode> visited = {};
     vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
+
+
     while(!p.empty()) {      // While L\V != empty set
 
         //GraphNode tmp_xq_ptr = &xq;

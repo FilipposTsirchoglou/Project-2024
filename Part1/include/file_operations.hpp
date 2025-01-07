@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "util.hpp"
 
 
 
@@ -20,5 +21,10 @@ int read_ivec_files(const string&, vector<vector<int>>&);
 
 
 /*Reads the config file and stores teh contents in the variables passed */
-void read_config_file (string, string &, string &, string &, int &, int &, float &, int &);
+void read_config_file (string, string &, string &, string &, string &, string &, int &, int &, float &, int &);
+
+void read_graph(const string &file_path, vector<graph_node> &graph, int &medoid_id);
+
+void save_graph(const string &file_path, const vector<graph_node> &graph, GraphNode &medoid);
+
 
