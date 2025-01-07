@@ -1,6 +1,8 @@
 DATASET = siftsmall/siftsmall_base.fvecs
 QUERIES = siftsmall/siftsmall_query.fvecs
 GROUNDTRUTH = siftsmall/siftsmall_groundtruth.ivecs
+GRAPH = YES
+GRAPH_NAME = vamana_graph_final.bin
 R = 25
 L = 150
 a = 1.1

@@ -9,17 +9,96 @@ using namespace std;
 
 
 /*Returns a vector l_closest that cointains the k closest NN's and a vector v cointaining the visited nodes*/    
-pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l) {
-    vector<GraphNode> l_closest = {&s};
+pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l , int gogo) {
+
+    /*if (gogo ==1) {
+      cout << "Graph in greedy" << endl;
+      for ( int i = 0 ; i < graph.size() ; i++) {
+        cout << "id: " << graph[i].id << endl;
+        cout << "cords: " << endl;
+        for (int j = 0 ; j < graph[i].cords.size() ; j++) {
+          cout << graph[i].cords[j] << " ";
+        }
+        cout << endl;
+      }
+      cout << endl;
+    }*/
+     vector<GraphNode> l_closest= {&s};
     vector<GraphNode> visited = {};
     vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
+    /*if (gogo==1) {
+      cout << "This is P: " << endl;
+      for (int i=0 ; i<p.size() ; i++) {
+        cout << "id: " << p[i]->id << endl;
+        cout << "cords: " << endl;
+        for (int j=0 ; j<p[i]->cords.size() ; j++) {
+          cout << p[i]->cords[j] << " ";
+        }
+        cout << endl;
+      }
+      cout << endl;
+
+    }*/
+
+
+    //cout << "P size:" << p.size() << endl;
+    /*for (int i = 0 ; i < p.size() ; i++) {
+        cout << "id: " << p[i]->id << " ";
+        cout << "cords size: " << p[i]->cords.size() << endl;
+        cout << endl;
+    }*/
+
+    //cout << "medoid in greedy search" << endl;
+    //cout << "medoid id: " << s.id << endl;
+    //cout << "medoid cords: " << endl;
+    /*for (int i = 0 ; i < s.cords.size() ; i++) {
+        cout << s.cords[i] << " ";
+    }
+    cout << endl;*/
+    /*cout << p[0]->id << endl;
+    cout << "cords size: " << p[0]->cords.size() << endl;
+    cout << "cords: " << endl;
+    for (int i=0 ; i<p[0]->cords.size() ; i++) {
+        cout << p[0]->cords[i] << " ";
+    }
+    cout << endl;
+
+    cout << "DONE" << endl;*/
+
     while(!p.empty()) {      // While L\V != empty set
-      //GraphNode tmp_zq = &xq;
+            //GraphNode tmp_zq = &xq;
+        /*cout << p[0]->id << endl;
+        cout << "cords size: " << p[0]->cords.size() << endl;
+        cout << "cords: " << endl;
+        for (int i=0 ; i<p[0]->cords.size() ; i++) {
+            cout << p[0]->cords[i] << " ";
+        }
+        cout << endl;*/
+
+        //cout << "DONE" << endl;
        GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
+
+       /*if (gogo ==1 ) {
+        cout << "p_star id: " << p_star->id << endl;
+        cout << "p_star cords: " << endl;
+        for (int i=0 ; i<p_star->cords.size() ; i++) {
+          cout << p_star->cords[i] << " ";
+        }
+        cout << endl;
+       }*/
       
         // Update L ← L ∪ Nout(p_star) and V ← V ∪ {p_star} 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin() ; it != p_star->outgoing.end() ; ++it) {
+
+          /*if (gogo ==1) {
+            cout << "outgoing id: " << (*it)->id << endl;
+            cout << "outgoing cords: " << endl;
+            for (int i=0 ; i<(*it)->cords.size() ; i++) {
+              cout << (*it)->cords[i] << " ";
+            }
+            cout << endl;
+          }*/
             
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));    // Search if the elements inside the outgoing list of p_star already exist in the l_closest vector
 
@@ -36,12 +115,33 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
         // Update l_closest to retain closest L points to xq
         if (l_closest.size() > l) {
-            
+          if (gogo ==1) {
+            cout << "resozed" << endl;
+          }
             sort(l_closest.begin(), l_closest.end(), compare_eucl);     // Sorts the l_closest vector using a custom comparator function 
             l_closest.resize(l);        // Keep the first L elements of the vector
         }
         
         p = vectors_difference(l_closest, visited);      // Recompute L-V before the condition is checked  in the while loop
+        /*if (gogo==1) {
+          cout << "This is P recompute: " << endl;
+          for (int i=0 ; i<p.size() ; i++) {
+            cout << "id: " << p[i]->id << endl;
+            cout << "cords: " << endl;
+            for (int j=0 ; j<p[i]->cords.size() ; j++) {
+              cout << p[i]->cords[j] << " ";
+            }
+            cout << endl;
+          }
+          cout << endl;
+        }*/
+
+        //cout << "P RECOMPUTATION size:"<< p.size() << endl;
+        /*for (int i = 0 ; i < p.size() ; i++) {
+          cout << "id: " << p[i]->id << " ";
+          cout << "cord size : "<< p[i]->cords.size() << endl;
+          cout << endl;
+        }*/
     }
 
     if( !(l_closest.empty()) && (l_closest.size() > k)){
@@ -109,12 +209,12 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med) {
+vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med, vector<int>& pos) {
 
 
     // Creates a random graph using the all_points vector and stores it in the gaph vector
     vector<graph_node> graph;
-    create_random_graph(graph,all_points, R);
+    create_random_graph(graph, all_points, R, pos);
   
     // Stores a random permutation atvector sigma
     vector<int> sigma = give_random_permutation(graph.size());
@@ -132,7 +232,7 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
 
         }
 
-        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
+        pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L, 0);
 
         vector<GraphNode> v = res.second;        
         robust_prune(&graph[sigma[i]], v, a, R);
@@ -171,18 +271,20 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
 
 
 /*Creates a random r-regular graph and returns it from the parameters*/
-void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_points, int r) {
+void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_points, int r, vector<int>& pos) {
     
     for(int i = 0 ; i < all_points.size() ; i++) {
 
         graph_node g;
-        g.id = i;
+        //g.id = i;
+        //g.cords = all_points[i];
+        g.id=pos[i];
         g.cords = all_points[i];
         graph.push_back(g);
 
     }
 
-    if (graph.size() >= r) {   
+    if (graph.size() >= r) {  //pissible change  
 
       for(int i = 0 ; i < graph.size() ; i++) {
           
@@ -190,8 +292,8 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
 
           do {
             int edge_to_id = get_random_number(graph.size() - 1);
-
-            if(edge_to_id != graph[i].id) {             // If the id we want to connect is not the same as the source node id
+            //int edge_to_id = pos[get_random_number(graph.size() - 1)];  // Get a random number in the range of the graph size
+            if(graph[edge_to_id].id != graph[i].id) {             // If the id we want to connect is not the same as the source node id
                                                       
                   if(graph[i].outgoing.empty()) { 
                                  // If the list is empty do the connection

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "util.hpp"
 
 using namespace std;
 
@@ -12,4 +13,9 @@ void ReadBin(const string &file_path, const int num_dimensions, vector<vector<fl
 
 
 /*Reads the config file ans stores teh contents in the variables passed */
-void read_config_file (string CONFIG, string &DATASET, string &QUERIES, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH, string &method_type);
+void read_config_file (string CONFIG, string &DATASET, string &QUERIES, string &GRAPH, string &GRAPH_NAME, int &R, int &L, float &a, int &k, int &th, int &L_SMALL, int &R_SMALL ,int &R_STICH, string &method_type);
+
+/*Saves the graph to a .bin file*/
+void save_graph(const string &file_path, const vector<graph_node> &graph, GraphNode &med);
+
+void read_graph(const string &file_path, vector<graph_node> &graph, int &med_id);
