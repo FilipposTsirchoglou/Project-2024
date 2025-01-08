@@ -1,7 +1,7 @@
-DATASET = dummy-data.bin
-QUERIES = dummy-queries.bin
+DATASET = contest-data-release-1m.bin
+QUERIES = contest-queries-release-1m.bin
 GRAPH = YES
-GRAPH_NAME = filtered_vamana_0_test.bin
+GRAPH_NAME = filtered_vamana_1_1m.bin
 R = 35
 L = 200
 a = 1.1
@@ -10,4 +10,4 @@ th = 1
 L-SMALL = 200
 R-SMALL = 35
 R-STICH = 3
-METHOD-TYPE = F0 
+METHOD-TYPE = F1 
