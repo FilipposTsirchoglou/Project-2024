@@ -41,13 +41,13 @@ int main(void) {
     cout << "DATA_FILE: " << DATA_FILE << " QUERIES_FILE: " << QUERIES_FILE << "GRAPH: " << GRAPH << "GRAPH_NAME: " << GRAPH_NAME << " R: " << R << " L: " << L << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << endl;
 
     vector<vector<float>> nodes;    //all the points of the dataset
-    ReadBin("dummy-data.bin", 102, nodes);
+    ReadBin(DATA_FILE, 102, nodes);
 
     vector<vector<float>> queries;  //all the queries
-    ReadBin("dummy-queries.bin", 104, queries);
+    ReadBin(QUERIES_FILE, 104, queries);
 
     vector<vector<float>> gt;      //groundtruth
-    ReadBin("GroundTruth.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
+    ReadBin("GroundTruth_1m.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
 
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
@@ -140,6 +140,7 @@ int main(void) {
 
                     // Calculate recall
                     float recall = (float)same_points / 100.0;
+                    cout << "recall: " << recall << endl;
                     recall_sum += recall;
                 } 
             }
@@ -211,6 +212,7 @@ int main(void) {
 
                     // Calculate recall
                     float recall = (float)same_points / 100.0;
+                    cout << "recall: " << recall << endl;
                     recall_sum += recall;
                 } 
             }

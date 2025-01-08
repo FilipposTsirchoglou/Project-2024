@@ -124,7 +124,7 @@ int main(void) {
     ReadBin("dummy-queries.bin", 104, queries);
 
     for (int i=0 ; i<queries.size() ; i++) {          //for each query
-       // cout << "query: " << i << endl << endl;
+        cout << "query: " << i << endl << endl;
 
 
         //keep the cords of the query in a vector
@@ -211,7 +211,7 @@ int main(void) {
 
     //save to binay file
 
-    ofstream outFile("GroundTruth.bin", ios::binary);
+    ofstream outFile("GroundTruth_new.bin", ios::binary);
     uint32_t N = gt.size();
     outFile.write(reinterpret_cast<const char*>(&N), sizeof(uint32_t));
 
@@ -224,16 +224,16 @@ int main(void) {
 
     cout << "Attempting to read the file" << endl;
     vector<vector<float>> gt2;
-    ReadBin("GroundTruth.bin", 101, gt2);
+    ReadBin("GroundTruth_1m.bin", 101, gt2);
     cout << "gt2 size: " << gt2.size() << endl;
 
-    /*for (int i=0 ; i<gt2.size() ; i++) {
+    for (int i=0 ; i<gt2.size() ; i++) {
         cout << "query: " << gt2[i][0] << endl;
         for (int j=1 ; j<gt2[i].size() ; j++) {
-            cout << gt[i][j] << " ";
+            cout << gt2[i][j] << " ";
         }
         cout << endl << endl;
-    }*/
+    }
 
     return 0;
 }
