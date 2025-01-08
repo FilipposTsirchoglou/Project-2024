@@ -1,5 +1,7 @@
 /*vamana.cpp*/
 
+#include <omp.h>
+
 #include "../include/util.hpp"
 #include "../include/vamana.hpp"
 #include <bits/stdc++.h>
@@ -95,20 +97,37 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med) {
 
 
-    // Creates a random graph using the all_points vector and stores it in the gaph vector
+    // Create necessary variables
     vector<graph_node> graph;
-    create_random_graph(graph,all_points, R);
+    vector<int> sigma;
 
-    // Stores a random permutation atvector sigma
-    vector<int> sigma = give_random_permutation(graph.size());
+    // Set up parallel sections
+    #pragma omp parallel sections num_threads(2)
+    {
+        // Section for create_random_graph
+        #pragma omp section
+        {
+            // Ensure this section runs with a single thread
+            //omp_set_num_threads(1);
+            create_random_graph(graph, all_points, R);
+        }
 
+        // Section for give_random_permutation
+        #pragma omp section
+        {
+            // Ensure give_random_permutation uses 2 threads internally
+            //omp_set_num_threads(2);
+            sigma = give_random_permutation(all_points.size());
+        }
+    }
+
+    // Continue with the rest of the vamana function
     GraphNode s = find_medoid(graph);   
     med = s;
     cout << "Creating vamana indexing graph..." << endl;
 
-    for (int i=0 ; i<sigma.size() ; i++) {       // Itterate all the points of the vector in random order
-        
-        if( i % 1000 == 0) {
+    for (int i = 0; i < sigma.size(); i++) {  // Iterate all the points of the vector in random order
+        if (i % 1000 == 0) {
             cout << (i / 100) << "%" << endl;
         }
 
@@ -117,19 +136,18 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
         robust_prune(&graph[sigma[i]], v, a, R);
         
         // For all points j in Nout(σ(i))
-        for (auto it = graph[sigma[i]].outgoing.begin() ; it != graph[sigma[i]].outgoing.end() ; ++it) {
-            
+        for (auto it = graph[sigma[i]].outgoing.begin(); it != graph[sigma[i]].outgoing.end(); ++it) {
             vector<GraphNode> temp_vec;
+
             // temp_vec = Nout(j) U {σ(i)}
-            for (auto it2 = (*it)->outgoing.begin() ; it2 != (*it)->outgoing.end() ; ++it2) {
+            for (auto it2 = (*it)->outgoing.begin(); it2 != (*it)->outgoing.end(); ++it2) {
                 temp_vec.push_back((*it2));
             }
             temp_vec.push_back(&graph[sigma[i]]);
-            
+
             if (temp_vec.size() > R) {
                 robust_prune((*it), temp_vec, a, R);
-            }
-            else {
+            } else {
                 (*it)->outgoing.push_front(&graph[sigma[i]]);
             }
         }
@@ -188,39 +206,74 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
 
 
 /*Finds and returns the medoid of the graph*/
-GraphNode find_medoid(vector<graph_node>& graph) {
-    cout << " Finding medoid..." << endl;
-    
+GraphNode find_medoid(std::vector<graph_node>& graph) {
+
+    omp_set_num_threads(4);
+
+    cout << "Finding medoid..." << std::endl;
+
     double min_eucl = INFINITY;
-    int min_pos;
+    int min_pos = -1;  // Initialize with an invalid position
 
-    for(int i = 0 ; i < graph.size() ; i++) {
+    #pragma omp parallel
+    {
+        // Each thread has its own local values for eucl_sum, min_eucl, and min_pos
+        double local_min_eucl = INFINITY;
+        int local_min_pos = -1;
 
-        double eucl_sum=0;
-        for (int j = 0 ; j < graph.size() ; j++) {
-            if (i==j) continue;
-            eucl_sum += euclidean(graph[i].cords, graph[j].cords);
+        #pragma omp for
+
+        for (int i = 0; i < graph.size(); i++) {
+
+            double eucl_sum = 0;
+
+            for (int j = 0; j < graph.size(); j++) {
+
+                if (i == j) continue;
+
+                eucl_sum += euclidean(graph[i].cords, graph[j].cords);
+
+            }
+
+            // Update the local values for this thread
+            if (eucl_sum < local_min_eucl) {
+                local_min_eucl = eucl_sum;
+                local_min_pos = i;
+            }
         }
-        if (eucl_sum < min_eucl) {
-            min_eucl = eucl_sum;
-            min_pos = i;
+
+        // Critical section to update the global min values safely
+        #pragma omp critical
+
+        {
+            if (local_min_eucl < min_eucl) {
+                min_eucl = local_min_eucl;
+                min_pos = local_min_pos;
+            }
         }
     }
+
+    // Retrieve the medoid after parallel section
     GraphNode medoid = &graph[min_pos];
-    cout << " Medoid found !" << endl;
+    cout << "Medoid found!" << std::endl;
 
     return medoid;
 }
 
 
-
 /*Returns a random permutation of integers*/
 vector<int> give_random_permutation(int size) {
-    vector<int> sigma;
 
-    for (int i = 0 ; i < size ; i++) {
-        sigma.push_back(i);
+    omp_set_num_threads(2);
+
+    vector<int> sigma(size);
+
+    // Parallel initialization of the vector
+    #pragma omp parallel for
+    for (int i = 0; i < size; i++) {
+        sigma[i] = i;
     }
+    
     random_shuffle(sigma.begin(), sigma.end());
 
     return sigma;
