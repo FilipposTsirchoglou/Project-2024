@@ -664,7 +664,7 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
 
 /**/
-vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th, map<int, int>& med) {
+void filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th, map<int, int>& med) {
 
   vector<int> sigma = give_random_permutation(graph.size());
 
@@ -707,7 +707,5 @@ vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int
 
       }
     }
-
   }
-  return graph;
 }

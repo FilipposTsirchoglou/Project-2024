@@ -1,18 +1,3 @@
-/*#include <iostream>
-#include <vector>
-#include <forward_list>
-#include <string>
-#include <utility>
-#include <bits/stdc++.h>
-#include <math.h>
-#include <time.h>
-#include <queue>
-#include "include/util.hpp"
-#include <map>
-#include <algorithm> 
-#include "include/vamana.hpp"
-#include "include/find_check.hpp" 
-#include "include/file_operations.hpp"*/
 #include <iostream>
 #include "../include/util.hpp"
 #include "../include/find_check.hpp"
@@ -33,12 +18,12 @@ int main(void) {
 
     //Read the configuration file and store its values
     string DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, METHOD_TYPE;
-    int L, R, k, th, L_small, R_small, R_stich;
+    int L, R, k, th, L_small, R_small, R_stich, ACTUAL_MEDOIDS;
     float a;
 
-    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
+    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE, ACTUAL_MEDOIDS);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
-    cout << "DATA_FILE: " << DATA_FILE << " QUERIES_FILE: " << QUERIES_FILE << "GRAPH: " << GRAPH << "GRAPH_NAME: " << GRAPH_NAME << " R: " << R << " L: " << L << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << endl;
+    cout << "DATA_FILE: " << DATA_FILE << " QUERIES_FILE: " << QUERIES_FILE << "GRAPH: " << GRAPH << "GRAPH_NAME: " << GRAPH_NAME << " R: " << R << " L: " << L << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << "actual_medoids " << ACTUAL_MEDOIDS<< endl;
 
     vector<vector<float>> nodes;    //all the points of the dataset
     ReadBin(DATA_FILE, 102, nodes);
@@ -68,17 +53,20 @@ int main(void) {
         graph.push_back(g);
     }
 
+
     map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
-    for (int i=0 ; i<filter_set.size() ; i++) {
-        vector<graph_node> temp_graph;
-        for (int j = 0 ; j<graph.size() ; j++ ) {
-            if (graph[j].filters[0] == filter_set[i]) {
-                temp_graph.push_back(graph[j]);
+    if (ACTUAL_MEDOIDS == 1) {
+        for (int i=0 ; i<filter_set.size() ; i++) {
+            vector<graph_node> temp_graph;
+            for (int j = 0 ; j<graph.size() ; j++ ) {
+                if (graph[j].filters[0] == filter_set[i]) {
+                    temp_graph.push_back(graph[j]);
+                }
             }
+            GraphNode medoid = find_medoid(temp_graph);
+            int med_id =medoid->id;
+            med[filter_set[i]] = med_id;
         }
-        GraphNode medoid = find_medoid(temp_graph);
-        int med_id =medoid->id;
-        med[filter_set[i]] = med_id;
     }
     /*Find the actual medoid*/
 
@@ -90,14 +78,13 @@ int main(void) {
     cout << "Method used is: " << METHOD_TYPE << endl;
     if (METHOD_TYPE == "F0" || METHOD_TYPE == "F1") {
 
-        vector<graph_node> vamana_filtered;
         if (GRAPH == "NO") {
             /*Creates a new graph and saves it to a .bin file*/
-            vamana_filtered = filteredVamana(graph, a, L, R, filter_set, th, med);
-            save_graph(GRAPH_NAME, vamana_filtered, dummy_med);
+            filteredVamana(graph, a, L, R, filter_set, th, med);
+            save_graph(GRAPH_NAME, graph, dummy_med);
         } else if (GRAPH == "YES") {
             /*Reads the graph from a .bin file*/
-            read_graph(GRAPH_NAME, vamana_filtered, med_id);
+            read_graph(GRAPH_NAME, graph, med_id);
         }
 
         int count = 0;
@@ -111,29 +98,27 @@ int main(void) {
                     count++;
             
                     graph_node gq;              // Create a temporary graph_node
-                    gq.id = vamana_filtered.size();
+                    gq.id = graph.size();
                     for(int j = 4 ; j < queries[i].size() ; j++) {
                         gq.cords.push_back(queries[i][j]);
                     }
 
                     gq.eucl_dist = -1;
                     gq.outgoing = {};
-                    /*for (int k=0 ; k<filter_set.size() ; k++) {
-                        gq.filters.push_back(filter_set[k]);
-                    }*/
+
                     gq.filters.push_back(queries[i][1]);
 
-                    vamana_filtered.push_back(gq);        // Push the graph_node in the graph vector
+                    graph.push_back(gq);        // Push the graph_node in the graph vector
 
                     vector<int> s1;
                     int query_filter = queries[i][1];
                     s1.push_back(med[query_filter]);                
 
                     // Run the filtered greedy search to find k closest neighbours
-                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, 200);
+                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(graph, s1, graph[graph.size() - 1], k, 200);
                     vector<GraphNode> k_closest = result.first;
                 
-                    vamana_filtered.erase(vamana_filtered.end()-1); //erase the temp graph_node
+                    graph.erase(graph.end()-1); //erase the temp graph_node
 
                     // If kclosest is less than k fill it with dummy nodes
                     if (k_closest.size() < 100) {
@@ -174,7 +159,7 @@ int main(void) {
                     
                     // Create and initialize a temmporary graph node
                     graph_node gq;              
-                    gq.id = vamana_filtered.size();
+                    gq.id = graph.size();
                     for(int j = 4 ; j < queries[i].size() ; j++) {
                         gq.cords.push_back(queries[i][j]);
                     }
@@ -183,7 +168,7 @@ int main(void) {
                     for (int k=0 ; k<filter_set.size() ; k++) {
                         gq.filters.push_back(filter_set[k]);
                     }      
-                    vamana_filtered.push_back(gq);        // Push the graph_node in the graph vector
+                    graph.push_back(gq);        // Push the graph_node in the graph vector
 
                     vector<int> s1;
                     
@@ -197,16 +182,15 @@ int main(void) {
                     for (int j=0 ; j<filter_set.size() ; j++ ) {
                         vector<int> s_temp;
                         s_temp.push_back(med[filter_set[j]]);
-                        //s_temp.push_back(&vamana_filtered[med[filter_set[j]]]);
-                        pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(vamana_filtered, s_temp, vamana_filtered[vamana_filtered.size() - 1], 1, L);
+                        pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(graph, s_temp, graph[graph.size() - 1], 1, L);
                         k_closest_results_id.push_back(result1.first[0]->id);
                     }          
 
                     // Run the filtered greedy search to find k closest neighbours
-                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, k_closest_results_id, vamana_filtered[vamana_filtered.size() - 1], k, L*2);
+                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(graph, k_closest_results_id, graph[graph.size() - 1], k, L*2);
                     vector<GraphNode> k_closest = result.first;
                 
-                    vamana_filtered.erase(vamana_filtered.end()-1);
+                    graph.erase(graph.end()-1);
 
                     // If kclosest is less than k fill it with dummy nodes
                     if (k_closest.size() < 100) {
