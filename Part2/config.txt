@@ -1,8 +1,8 @@
-DATASET = contest-data-release-1m.bin
-QUERIES = contest-queries-release-1m.bin
-GRAPH = YES
-GRAPH_NAME = filtered_vamana_1_1m.bin
-R = 35
+DATASET = dummy-data.bin
+QUERIES = dummy-queries.bin
+GRAPH = NO
+GRAPH_NAME = filtered_vamana_1.bin
+R = 12
 L = 200
 a = 1.1
 k = 100

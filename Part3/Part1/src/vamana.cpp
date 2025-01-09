@@ -10,6 +10,12 @@ using namespace std;
 
 /*Returns a vector l_closest that cointains the k closest NN's and a vector v cointaining the visited nodes*/    
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l) {
+
+    vector<double> distance_vec(graph.size(), -1.0);
+
+
+
+
     vector<GraphNode> l_closest = {&s};
     vector<GraphNode> visited = {};
     vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
@@ -17,7 +23,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
     while(!p.empty()) {      // While L\V != empty set
 
         //GraphNode tmp_xq_ptr = &xq;
-       GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
+       GraphNode p_star = find_min_eucl(p, xq, distance_vec);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
       
         // Update L ← L ∪ Nout(p_star) andV ← V ∪ {p_star} 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin() ; it != p_star->outgoing.end() ; ++it) {
@@ -49,6 +55,9 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
 /*Graph gets modified by setting at most R new outgoing neigbors for p*/
 void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
+
+    vector<double> distance_vec(10000, -1.0);
+
     // If p is found inside vector v then remove it
     auto found_at_pos = find(v.begin(), v.end(), p);  //    
     if (found_at_pos != v.end()) {
@@ -68,7 +77,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
     
     while (!v.empty()) {
 
-        GraphNode p_star = find_min_eucl(v, *p); 
+        GraphNode p_star = find_min_eucl(v, *p, distance_vec); 
         p->outgoing.push_front(p_star);        // Nout(p) ← Nout(p) ∪ {p_star}
 
         int list_size = distance(p->outgoing.begin(), p->outgoing.end()); 
