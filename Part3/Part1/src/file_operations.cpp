@@ -75,7 +75,7 @@ int read_ivec_files(const string& file_path, vector<vector<int>>& all_points) {
 }
 
 /*Reads the config file and stores teh contents in the variables passed */
-void read_config_file (string CONFIG, string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k) {
+void read_config_file (string CONFIG, string &DATASET, string &QUERIES, string &GROUNDTRUTH, int &R, int &L, float &a, int &k, int &RANDOM_MEDOID) {
     //open file
     ifstream config_file(CONFIG);
 
@@ -101,6 +101,8 @@ void read_config_file (string CONFIG, string &DATASET, string &QUERIES, string &
                 Line >> a;
             } else if (name == "k") {
                 Line >> k;
+            } else if (name == "RANDOM_MEDOID") {
+                Line >> RANDOM_MEDOID;
             }
         }
     }

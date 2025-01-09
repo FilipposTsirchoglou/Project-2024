@@ -20,5 +20,5 @@ int read_ivec_files(const string&, vector<vector<int>>&);
 
 
 /*Reads the config file and stores teh contents in the variables passed */
-void read_config_file (string, string &, string &, string &, int &, int &, float &, int &);
+void read_config_file (string, string &, string &, string &, int &, int &, float &, int &, int &);
 
