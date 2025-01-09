@@ -58,4 +58,4 @@ void filteredRobustPrune(GraphNode, vector<GraphNode>&, float, int);
 
 
 
-vector<graph_node> filteredVamana(vector<graph_node>&, float, int, int, vector<int>&, int, map<int, int>&);
+void filteredVamana(vector<graph_node>&, float, int, int, vector<int>&, int, map<int, int>&);
