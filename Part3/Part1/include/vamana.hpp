@@ -21,7 +21,7 @@ void robust_prune(GraphNode, vector<GraphNode>&, float, int);
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&);
+vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&, int);
 
 
 

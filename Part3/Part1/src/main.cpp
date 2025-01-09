@@ -12,9 +12,9 @@ using namespace  std;
 int main(void){
 
     string DATA, QUERIES, GROUNDTRUTH;
-    int R, L, k;
+    int R, L, k, RANDOM_MEDOID;
     float a;
-    read_config_file("config.txt", DATA, QUERIES, GROUNDTRUTH, R, L, a, k);
+    read_config_file("config.txt", DATA, QUERIES, GROUNDTRUTH, R, L, a, k, RANDOM_MEDOID);
     
 
     
@@ -28,7 +28,7 @@ int main(void){
     GraphNode med = NULL;
     
     /*Vamana handles the creation of the vamana indexing graph*/
-    vector<graph_node> vamana_graph = vamana(all_points, a, L, R, med);
+    vector<graph_node> vamana_graph = vamana(all_points, a, L, R, med, RANDOM_MEDOID);
 
     /*Reads the file with the queries and stores the data in the q_points vector*/
     vector<vector<float>> q_points;

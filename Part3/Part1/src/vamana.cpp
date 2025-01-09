@@ -92,7 +92,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med) {
+vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med, int RANDOM_MEDOID) {
 
 
     // Creates a random graph using the all_points vector and stores it in the gaph vector
@@ -102,7 +102,14 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
     // Stores a random permutation atvector sigma
     vector<int> sigma = give_random_permutation(graph.size());
 
-    GraphNode s = find_medoid(graph);   
+    GraphNode s = NULL;
+    if (RANDOM_MEDOID == 1) {
+        int rn = get_random_number(all_points.size());
+        s = &graph[rn];
+    }
+    else {
+        s = find_medoid(graph); 
+    } 
     med = s;
     cout << "Creating vamana indexing graph..." << endl;
 
