@@ -47,7 +47,7 @@ int main(void) {
     ReadBin(QUERIES_FILE, 104, queries);
 
     vector<vector<float>> gt;      //groundtruth
-    ReadBin("GroundTruth_1m.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
+    ReadBin("GroundTruth.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
 
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
