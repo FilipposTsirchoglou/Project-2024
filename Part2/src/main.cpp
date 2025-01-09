@@ -33,10 +33,10 @@ int main(void) {
 
     //Read the configuration file and store its values
     string DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, METHOD_TYPE;
-    int L, R, k, th, L_small, R_small, R_stich;
+    int L, R, k, th, L_small, R_small, R_stich, create_random;
     float a;
 
-    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
+    read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE, create_random);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
     cout << "DATA_FILE: " << DATA_FILE << " QUERIES_FILE: " << QUERIES_FILE << "GRAPH: " << GRAPH << "GRAPH_NAME: " << GRAPH_NAME << " R: " << R << " L: " << L << " a: " << a << " k: " << k << " th: " << th << " L_small: " << L_small << " R_small: " << R_small << " R_stich: " << R_stich << " method_type: " << METHOD_TYPE << endl;
 
@@ -47,27 +47,57 @@ int main(void) {
     ReadBin(QUERIES_FILE, 104, queries);
 
     vector<vector<float>> gt;      //groundtruth
-    ReadBin("GroundTruth_1m.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
+    ReadBin("GroundTruth.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
 
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
-
-    /*Graph Creation*/
-    for(int i = 0 ; i < nodes.size() ; i++) {
+    
+    /*Create random graph */
+    
+    for (int i = 0 ; i < nodes.size() ; i++) {
         graph_node g;
         g.id = i;
-
-        for(int j = 2 ; j < nodes[i].size() ; j++) {
-        g.cords.push_back(nodes[i][j]);
+        for (int j=2 ; j<nodes[i].size() ; j++) {
+            g.cords.push_back(nodes[i][j]);
         }
-
         g.eucl_dist = -1;
         g.outgoing = {};
         g.filters.push_back(nodes[i][0]);
 
         graph.push_back(g);
     }
+    
+    if (create_random == 1) {
+    
+        for (int i=0 ; i<graph.size() ; i++) {
+            int counter = 0;
 
+            do {
+                int edge_to_id = get_random_number(graph.size()-1);
+
+                if (graph[edge_to_id].id != graph[i].id) {
+                    if (graph[i].outgoing.empty()) {
+                        GraphNode edge = &graph[edge_to_id];
+                        graph[i].outgoing.push_front(edge);
+                        counter++;
+                    } else {
+                        bool flag = true;
+                        for (auto it = graph[i].outgoing.begin() ; it != graph[i].outgoing.end() ; ++it) {
+                            if ((*it)->id == edge_to_id) {
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if (flag == true) {
+                            GraphNode edge = &graph[edge_to_id];
+                            graph[i].outgoing.push_front(edge);
+                            counter++;
+                        }
+                    }
+                } 
+            } while (counter < R);
+        }
+    }
     map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
     GraphNode dummy_med = &graph[0];
     int med_id = -1;
@@ -114,7 +144,7 @@ int main(void) {
                     s1.push_back(&vamana_filtered[med[queries[i][1]]]);                
 
                     // Run the filtered greedy search to find k closest neighbours
-                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, 200);
+                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, L);
                     vector<GraphNode> k_closest = result.first;
                 
                     vamana_filtered.erase(vamana_filtered.end()-1); //erase the temp graph_node
@@ -170,12 +200,12 @@ int main(void) {
                     vamana_filtered.push_back(gq);        // Push the graph_node in the graph vector
 
                     vector<GraphNode> s1;
-                
+                    
                     // Trick to achieve better recall in filtered queries
                     for (auto it=med.begin() ; it!=med.end() ; ++it) {
                         s1.push_back(&vamana_filtered[it->second]);
                     }
-
+                    /*
                     vector<GraphNode> k_closest_results;
       
                     for (int j=0 ; j<filter_set.size() ; j++ ) {
@@ -183,10 +213,10 @@ int main(void) {
                         s_temp.push_back(&vamana_filtered[med[filter_set[j]]]);
                         pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(vamana_filtered, s_temp, vamana_filtered[vamana_filtered.size() - 1], 1, L);
                         k_closest_results.push_back(result1.first[0]);
-                    }          
+                    }     */     
 
                     // Run the filtered greedy search to find k closest neighbours
-                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, k_closest_results, vamana_filtered[vamana_filtered.size() - 1], k, L*2);
+                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(vamana_filtered, s1, vamana_filtered[vamana_filtered.size() - 1], k, L);
                     vector<GraphNode> k_closest = result.first;
                 
                     vamana_filtered.erase(vamana_filtered.end()-1);
