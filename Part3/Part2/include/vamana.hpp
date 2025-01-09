@@ -12,7 +12,7 @@ using namespace std;
 
 
 /*Returns a vector l_closest that cointains the k closest NN's and a vector v cointaining the visited nodes*/
-pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, graph_node&, graph_node&, int, int);
+pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>&, graph_node&, graph_node&, int, int, int);
 
 
 
@@ -22,12 +22,12 @@ void robust_prune(GraphNode, vector<GraphNode>&, float, int);
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&);
+vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&, vector<int>&);
 
 
 
 /*Creates a random r-regular graph and returns it from the parameters*/
-void create_random_graph(vector<graph_node>&, vector<vector<float>>&, int);
+void create_random_graph(vector<graph_node>&, vector<vector<float>>&, int, vector<int>&);
 
 
 
@@ -48,7 +48,7 @@ map<int, int> filteredFindMedoid(vector<graph_node>&, int, vector<int>&);
 
 
 /**/
-pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<GraphNode>&, graph_node&, int, int);
+pair<vector<GraphNode>, vector<GraphNode>> filteredGreedySearch(vector<graph_node>&, vector<int>&, graph_node&, int, int);
 
 
 
