@@ -78,12 +78,24 @@ int get_random_number(int max) {
 
 
 /*Returns a pointer to the graph_node that has the min euclidean distance from xq*/
-GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq) {
+GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq, vector<double>& distance_vec) {
     priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;   // Priority queue using a min heap. Inserts the elements with priority the smallest euclidian distance
 
     for (int i=0 ; i<p.size() ; i++) {
-        p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
-        pq.push(p[i]);          
+
+        if(distance_vec[p[i]->id] == -1.0) {
+
+            p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
+            distance_vec[p[i]->id] = p[i]->eucl_dist;
+            pq.push(p[i]);
+
+        }
+        else {
+
+            pq.push(p[i]);
+            
+        }
+
     }
 
     GraphNode p_star = pq.top();
