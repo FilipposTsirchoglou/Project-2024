@@ -111,8 +111,13 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
     // Stores a random permutation atvector sigma
     vector<int> sigma = give_random_permutation(graph.size());
 
-    GraphNode s = find_medoid(graph);   
+   
+
+    int rn = get_random_number(all_points.size());
+    GraphNode s = &graph[rn];
+
     med = s;
+    
     cout << "Creating vamana indexing graph..." << endl;
 
     for (int i=0 ; i<sigma.size() ; i++) {       // Itterate all the points of the vector in random order
