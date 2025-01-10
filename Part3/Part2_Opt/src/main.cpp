@@ -55,23 +55,7 @@ int main(void) {
 
 
     map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
-    if (ACTUAL_MEDOIDS == 1) {
-        for (int i=0 ; i<filter_set.size() ; i++) {
-            vector<graph_node> temp_graph;
-            for (int j = 0 ; j<graph.size() ; j++ ) {
-                if (graph[j].filters[0] == filter_set[i]) {
-                    temp_graph.push_back(graph[j]);
-                }
-            }
-            GraphNode medoid = find_medoid(temp_graph);
-            int med_id =medoid->id;
-            med[filter_set[i]] = med_id;
-        }
-    }
-    /*Find the actual medoid*/
-
-    /*----------------------*/
-
+    
     GraphNode dummy_med = &graph[0];
     int med_id = -1;
 
