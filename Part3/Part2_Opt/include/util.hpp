@@ -56,7 +56,7 @@ int get_random_number(int);
 
 
 /*Returns a pointer to the graph_node that has the min euclidean distance from xq*/ 
-GraphNode find_min_eucl(vector<GraphNode>&, graph_node&);
+GraphNode find_min_eucl(vector<GraphNode>&, graph_node&, vector<double>&);
 
 
 /*Returns the filter set of the data set vector passed*/
