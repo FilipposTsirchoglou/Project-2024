@@ -5,8 +5,10 @@
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
 #include "../include/file_operations.hpp"
+#include <chrono>
 
 using namespace  std;
+using namespace std::chrono;
 
 /*MAIN FUNCTION*/
 int main(void){
@@ -28,7 +30,9 @@ int main(void){
     GraphNode med = NULL;
     
     /*Vamana handles the creation of the vamana indexing graph*/
+    auto start = high_resolution_clock::now();
     vector<graph_node> vamana_graph = vamana(all_points, a, L, R, med, RANDOM_MEDOID);
+    auto stop = high_resolution_clock::now();
 
     /*Reads the file with the queries and stores the data in the q_points vector*/
     vector<vector<float>> q_points;
@@ -70,5 +74,7 @@ int main(void){
     recall = check_groundtruth_for_all_query_points(my_k_closest_vec, gt_points);
     cout << "average recall: " << recall << endl;
 
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "builiding time: " << duration.count() << endl;
     return 0;
 }
