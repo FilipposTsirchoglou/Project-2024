@@ -255,7 +255,7 @@ void vamana(float a, int L, int R, GraphNode& med, vector<graph_node>& graph) {
 
     // Continue with the rest of the vamana function
     
-    int rn = get_random_number(graph.size()-1);
+    int rn = get_random_number(graph.size()-1); // MEDOID
     GraphNode s = &graph[rn];
     med = s;
     cout << "Creating vamana indexing graph..." << endl;

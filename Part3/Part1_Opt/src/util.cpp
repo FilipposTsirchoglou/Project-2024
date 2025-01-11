@@ -17,38 +17,25 @@ using namespace std;
 
 /*Returns a vector with the difference of the k-approx NNs and the visited nodes*/
 vector<GraphNode> vectors_difference(vector<GraphNode>& l_closest, vector<GraphNode>& visited) {  
+    
+    bool are_same;                              // A flag that turns to true if two nodes are the same
+    vector<GraphNode> difference = {};              // A vector with the different nodes
 
-    omp_set_num_threads(4);
-    
-    // A vector to store the final difference
-    std::vector<GraphNode> difference;
-    
-    // Use thread-private temporary vectors to avoid race conditions
-    #pragma omp parallel
-    
-    {
-        vector<GraphNode> local_difference;   // Private vector for each thread
-
-        #pragma omp for nowait
-        for (int i = 0; i < l_closest.size(); i++) {
-            bool are_same = false;
-            for (int j = 0; j < visited.size(); j++) {
-                if (l_closest[i] == visited[j]) {
-                    are_same = true;
-                    break;
-                }
-            }
-            if (!are_same) {
-                local_difference.push_back(l_closest[i]);
+    for(int i = 0 ; i < l_closest.size() ; i++) {
+        are_same = false;
+        for(int j = 0 ; j < visited.size() ; j++) {
+            if(l_closest[i] == visited[j]) {     
+                are_same = true;
+                break;
             }
         }
-
-        // Merge local results into the shared vector
-        #pragma omp critical
-        difference.insert(difference.end(), local_difference.begin(), local_difference.end());
+        if (are_same == false) {
+            difference.push_back(l_closest[i]);
+        }
     }
     
     return difference;
+
 }
 
 

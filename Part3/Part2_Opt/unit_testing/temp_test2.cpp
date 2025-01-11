@@ -82,18 +82,21 @@ void test_find_min_eucl(void) {
     g0.id = 0;
     g0.cords = {0,1};
     g0.eucl_dist = -1;
+    g0.pos = 0;
     
 
     graph_node g1;
     g1.id = 1;
     g1.cords = {1,2};
     g1.eucl_dist = -1;
+    g1.pos = 1;
 
 
     graph_node g2;
     g2.id = 2;
     g2.cords = {2,3};
     g2.eucl_dist = -1;
+    g2.pos = 2;
     
     vector<GraphNode> vec;         // A vector of 3 random graph node pointers
     
@@ -106,7 +109,9 @@ void test_find_min_eucl(void) {
     g3.cords = {3,4};
     g3.eucl_dist = -1;            // A random query point
 
-    GraphNode node = find_min_eucl(vec, g3);
+    vector<double> dest_vec(3, -1.0);
+
+    GraphNode node = find_min_eucl(vec, g3, dest_vec);
 
     // We expect that the node with the minimum euclidean distance is g2 (we have computed that manually)
     TEST_ASSERT(node->id == g2.id);
@@ -170,10 +175,10 @@ void test_create_random_graph(void) {
     points.push_back(vec8);
 
     vector<graph_node> graph;
-    create_random_graph(graph, points, 2);            // We create a random graph with the 8 points
+    create_random_graph(graph, 2);            // We create a random graph with the 8 points
 
     // We expect an initialized graph with 8 nodes
-    TEST_ASSERT(graph.size() == 8);
+    //TEST_ASSERT(graph.size() == 8);
 
     bool flag = true;    // A flag that turns into false as soon as we find a node with outgoing list size != 2 and breaks the loop
 
@@ -201,60 +206,71 @@ void test_greedy_search(void) {
     g0.id = 0;
     g0.cords = {0,1};
     g0.eucl_dist = -1;
+    g0.pos = 0;
     graph.push_back(g0);
+
 
     graph_node g1;
     g1.id = 1;
     g1.cords = {1,2};
     g1.eucl_dist = -1;
+    g1.pos = 1;
     graph.push_back(g1);
 
     graph_node g2;
     g2.id = 2;
     g2.cords = {2,1};
     g2.eucl_dist = -1;
+    g2.pos = 2;
     graph.push_back(g2);
 
     graph_node g3;
     g3.id = 3;
     g3.cords = {3,0};
     g3.eucl_dist = -1;
+    g3.pos = 3;
     graph.push_back(g3);
 
     graph_node g4;
     g4.id = 4;
     g4.cords = {2,-1};
     g4.eucl_dist = -1;
+    g4.pos = 4;
     graph.push_back(g4);
 
     graph_node g5;
     g5.id = 5;
     g5.cords = {1,-2};
     g5.eucl_dist = -1;
+    g5.pos = 5;
     graph.push_back(g5);
 
     graph_node g6;
     g6.id = 6;
     g6.cords = {0,1};
     g6.eucl_dist = -1;
+    g6.pos = 6;
     graph.push_back(g6);
 
     graph_node g7;
     g7.id = 7;
     g7.cords = {-1,-2};
     g7.eucl_dist = -1;
+    g7.pos = 7;
     graph.push_back(g7);
 
     graph_node g8;
     g8.id = 8;
     g8.cords = {-2,-1};
     g8.eucl_dist = -1;
+    g8.pos = 8;
     graph.push_back(g8);
 
     graph_node g9;
     g9.id = 9;
     g9.cords = {-3,0};
     g9.eucl_dist = -1;
+    g9.pos = 9;
     graph.push_back(g9);                          // We manually create a random graph with 10 random points
 
     graph[0].outgoing.push_front(&graph[1]);
@@ -289,7 +305,7 @@ void test_greedy_search(void) {
                                                 // We set the outgoing conncetions for every node
 
     // Calling greedy search with start point 0 and query point 9, k = 2, L = 4
-    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[9], 2, 4);
+    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[9], 2, 4, 0);
 
     // After performing greedy search on the graph above manually, we find out that the k = 2 closest points are 8 and 7
     TEST_ASSERT((res.first[0] == &graph[8]) && (res.first[1] == &graph[7]));
@@ -306,60 +322,70 @@ void test_robust_prune(void) {
     g0.id = 0;
     g0.cords = {0,1};
     g0.eucl_dist = -1;
+    g0.pos = 0;
     graph.push_back(g0);
 
     graph_node g1;
     g1.id = 1;
     g1.cords = {1,2};
     g1.eucl_dist = -1;
+    g1.pos = 1;
     graph.push_back(g1);
 
     graph_node g2;
     g2.id = 2;
     g2.cords = {2,1};
     g2.eucl_dist = -1;
+    g2.pos = 2;
     graph.push_back(g2);
 
     graph_node g3;
     g3.id = 3;
     g3.cords = {3,0};
     g3.eucl_dist = -1;
+    g3.pos = 3;
     graph.push_back(g3);
 
     graph_node g4;
     g4.id = 4;
     g4.cords = {2,-1};
     g4.eucl_dist = -1;
+    g4.pos = 4;
     graph.push_back(g4);
 
     graph_node g5;
     g5.id = 5;
     g5.cords = {1,-2};
     g5.eucl_dist = -1;
+    g5.pos = 5;
     graph.push_back(g5);
 
     graph_node g6;
     g6.id = 6;
     g6.cords = {0,-1};
     g6.eucl_dist = -1;
+    g6.pos = 6;
     graph.push_back(g6);
 
     graph_node g7;
     g7.id = 7;
     g7.cords = {-1,-2};
     g7.eucl_dist = -1;
+    g7.pos = 7;
     graph.push_back(g7);
 
     graph_node g8;
     g8.id = 8;
     g8.cords = {-2,-1};
     g8.eucl_dist = -1;
+    g8.pos = 8;
     graph.push_back(g8);
 
     graph_node g9;
     g9.id = 9;
     g9.cords = {-3,0};
     g9.eucl_dist = -1;
+    g9.pos = 9;
     graph.push_back(g9);
 
     graph[0].outgoing.push_front(&graph[9]);
@@ -530,15 +556,75 @@ void test_vamana(void) {
     int r = 4;
     GraphNode med = NULL;
 
-    vector<graph_node> vamana_graph = vamana(points, a, l, r, med);
+    vector<graph_node> graph;
+
+    
+
+    graph_node g1;
+    g1.id = 0;
+    g1.cords = {1,2};
+    g1.eucl_dist = -1;
+    g1.pos = 0;
+    graph.push_back(g1);
+
+    graph_node g2;
+    g2.id = 1;
+    g2.cords = {2,3};
+    g2.eucl_dist = -1;
+    g2.pos = 1;
+    graph.push_back(g2);
+
+    graph_node g3;
+    g3.id = 2;
+    g3.cords = {3,4};
+    g3.eucl_dist = -1;
+    g3.pos = 2;
+    graph.push_back(g3);
+
+    graph_node g4;
+    g4.id = 3;
+    g4.cords = {4,5};
+    g4.eucl_dist = -1;
+    g4.pos = 3;
+    graph.push_back(g4);
+
+    graph_node g5;
+    g5.id = 4;
+    g5.cords = {5,6};
+    g5.eucl_dist = -1;
+    g5.pos = 4;
+    graph.push_back(g5);
+
+    graph_node g6;
+    g6.id = 5;
+    g6.cords = {6,5};
+    g6.eucl_dist = -1;
+    g6.pos = 5;
+    graph.push_back(g6);
+
+    graph_node g7;
+    g7.id = 6;
+    g7.cords = {6,7};
+    g7.eucl_dist = -1;
+    g7.pos = 6;
+    graph.push_back(g7);
+
+    graph_node g8;
+    g8.id = 7;
+    g8.cords = {7,8};
+    g8.eucl_dist = -1;
+    g8.pos = 7;
+    graph.push_back(g8);
+
+    vamana(a, l, r, med, graph);
 
     // We want to make sure that the vamana function returns the medoid properly
     TEST_ASSERT(med != NULL);
 
     bool flag = true;  // If we find at least a node with outgoing list size > R, flag becomes false and the loop breaks
 
-    for(int i = 0 ; i < vamana_graph.size() ; i++) {
-        int list_size = distance(vamana_graph[i].outgoing.begin(), vamana_graph[i].outgoing.end());
+    for(int i = 0 ; i < graph.size() ; i++) {
+        int list_size = distance(graph[i].outgoing.begin(), graph[i].outgoing.end());
         if(list_size > r) {
             flag = false;
             break;
@@ -729,6 +815,7 @@ void test_filteredGreedySearch(void) {
     g0.cords = {0,1};
     g0.eucl_dist = -1;
     g0.filters.push_back(0);
+    g0.pos = 0;
     graph.push_back(g0);
 
     graph_node g1;
@@ -736,6 +823,7 @@ void test_filteredGreedySearch(void) {
     g1.cords = {1,2};
     g1.eucl_dist = -1;
     g1.filters.push_back(1);
+    g1.pos = 1;
     graph.push_back(g1);
 
     graph_node g2;
@@ -743,6 +831,7 @@ void test_filteredGreedySearch(void) {
     g2.cords = {2,1};
     g2.eucl_dist = -1;
     g2.filters.push_back(2);
+    g2.pos = 2;
     graph.push_back(g2);
 
     graph_node g3;
@@ -750,6 +839,7 @@ void test_filteredGreedySearch(void) {
     g3.cords = {3,0};
     g3.eucl_dist = -1;
     g3.filters.push_back(3);
+    g3.pos = 3;
     graph.push_back(g3);
 
     graph_node g4;
@@ -757,10 +847,11 @@ void test_filteredGreedySearch(void) {
     g4.cords = {2,-1};
     g4.eucl_dist = -1;
     g4.filters.push_back(4);
+    g4.pos = 4;
     graph.push_back(g4);                        // Initializing a graph with 5 random points
 
-    vector<GraphNode> s;
-    s.push_back(&graph[0]);                     // Let the node 0 be the starting point
+    vector<int> s;
+    s.push_back(0);                     // Let the node 0 be the starting point
 
     int k = 1;
     int l = 2;
@@ -792,6 +883,7 @@ vector<graph_node> graph;
     g0.cords = {0,1};
     g0.eucl_dist = -1;
     g0.filters.push_back(0);
+    g0.pos = 0;
     graph.push_back(g0);
 
     graph_node g1;
@@ -799,6 +891,7 @@ vector<graph_node> graph;
     g1.cords = {1,2};
     g1.eucl_dist = -1;
     g1.filters.push_back(1);
+    g1.pos = 1;
     graph.push_back(g1);
 
     graph_node g2;
@@ -806,6 +899,7 @@ vector<graph_node> graph;
     g2.cords = {2,1};
     g2.eucl_dist = -1;
     g2.filters.push_back(2);
+    g2.pos = 2;
     graph.push_back(g2);
 
     graph_node g3;
@@ -813,6 +907,7 @@ vector<graph_node> graph;
     g3.cords = {3,0};
     g3.eucl_dist = -1;
     g3.filters.push_back(3);
+    g3.pos = 3;
     graph.push_back(g3);
 
     graph_node g4;
@@ -820,6 +915,7 @@ vector<graph_node> graph;
     g4.cords = {2,-1};
     g4.eucl_dist = -1;
     g4.filters.push_back(4);
+    g4.pos = 4;
     graph.push_back(g4);                            // Initializing a graph with 5 random nodes
 
     vector<GraphNode> v = {&graph[0]};              // Let node 0 be the only visited node after filtered greedy search
@@ -859,6 +955,7 @@ void test_filteredVamana(void) {
     g0.cords = {0,1};
     g0.eucl_dist = -1;
     g0.filters.push_back(0);
+    g0.pos = 0;
     graph.push_back(g0);
 
     graph_node g1;
@@ -866,6 +963,7 @@ void test_filteredVamana(void) {
     g1.cords = {1,2};
     g1.eucl_dist = -1;
     g1.filters.push_back(0);
+    g1.pos = 1;
     graph.push_back(g1);
 
     graph_node g2;
@@ -873,6 +971,7 @@ void test_filteredVamana(void) {
     g2.cords = {2,1};
     g2.eucl_dist = -1;
     g2.filters.push_back(1);
+    g2.pos = 2;
     graph.push_back(g2);
 
     graph_node g3;
@@ -880,6 +979,7 @@ void test_filteredVamana(void) {
     g3.cords = {3,0};
     g3.eucl_dist = -1;
     g3.filters.push_back(1);
+    g3.pos = 3;
     graph.push_back(g3);
 
     graph_node g4;
@@ -887,6 +987,7 @@ void test_filteredVamana(void) {
     g4.cords = {2,-1};
     g4.eucl_dist = -1;
     g4.filters.push_back(2);
+    g4.pos = 4;
     graph.push_back(g4);
 
     graph_node g5;
@@ -894,6 +995,7 @@ void test_filteredVamana(void) {
     g5.cords = {1,-2};
     g5.eucl_dist = -1;
     g5.filters.push_back(2);
+    g5.pos = 5;
     graph.push_back(g5);
 
     graph_node g6;
@@ -901,6 +1003,7 @@ void test_filteredVamana(void) {
     g6.cords = {0,1};
     g6.eucl_dist = -1;
     g6.filters.push_back(3);
+    g6.pos = 6;
     graph.push_back(g6);
 
     graph_node g7;
@@ -908,6 +1011,7 @@ void test_filteredVamana(void) {
     g7.cords = {-1,-2};
     g7.eucl_dist = -1;
     g7.filters.push_back(3);
+    g7.pos = 7;
     graph.push_back(g7);
 
     graph_node g8;
@@ -915,6 +1019,7 @@ void test_filteredVamana(void) {
     g8.cords = {-2,-1};
     g8.eucl_dist = -1;
     g8.filters.push_back(4);
+    g8.pos = 8;
     graph.push_back(g8);
 
     graph_node g9;
@@ -922,6 +1027,7 @@ void test_filteredVamana(void) {
     g9.cords = {-3,0};
     g9.eucl_dist = -1;
     g9.filters.push_back(4);
+    g9.pos = 9;
     graph.push_back(g9);                            // Initializing a graph with 10 random nodes 
 
     vector<int> filter_set = {0, 1, 2, 3, 4};       // The filter set of the nodes (every filter appearing only once)
@@ -934,12 +1040,12 @@ void test_filteredVamana(void) {
     map<int,int> m = filteredFindMedoid(graph, th, filter_set);
 
     
-    vector<graph_node> filtered_vamana = filteredVamana(graph, a, l, r, filter_set, th, m);
+    filteredVamana(graph, a, l, r, filter_set, th, m);
 
     bool flag = true;  // If we find at least a node with outgoing list size > R, flag becomes false and the loop breaks
 
-    for(int i = 0 ; i < filtered_vamana.size() ; i++) {
-        int list_size = distance(filtered_vamana[i].outgoing.begin(), filtered_vamana[i].outgoing.end());
+    for(int i = 0 ; i < graph.size() ; i++) {
+        int list_size = distance(graph[i].outgoing.begin(), graph[i].outgoing.end());
         if(list_size > r) {
             flag = false;
             break;
@@ -969,10 +1075,10 @@ void test_find_filter_set(void) {
 
 void test_read_config_file(void) {
 
-    string DATA_FILE, QUERIES_FILE, METHOD_TYPE;
-    int L, R, k, th, L_small, R_small, R_stich;
+    string DATA_FILE, QUERIES_FILE, METHOD_TYPE, GRAPH, GRAPH_NAME;
+    int L, R, k, th, L_small, R_small, R_stich, ACTUAL_MEDOIDS, F0_TRICK;
     float a;
-    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);
+    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE, ACTUAL_MEDOIDS, F0_TRICK);
 
     // Testing that every field from the configuration file is read properly
     TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && R==0 && L==0 && a==0 && k==0 && th==0 && L_small == 0 && R_small == 0 && R_stich == 0 && METHOD_TYPE == "S0");

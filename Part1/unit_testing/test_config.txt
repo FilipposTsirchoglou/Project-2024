@@ -1,6 +1,8 @@
 DATASET = test
 QUERIES = test
 GROUNDTRUTH = test
+GRAPH = YES
+GRAPH_NAME = test
 R = 0
 L = 0
 a = 0
