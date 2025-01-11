@@ -176,7 +176,11 @@ int main(void) {
                     for (auto it=med.begin() ; it!=med.end() ; ++it) {
                         s1.push_back(it->second);
                     }
+                    /*
+                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(graph, s1, graph[graph.size() - 1], k, L);
+                    vector<GraphNode> k_closest = result.first;*/
 
+                    
                     vector<int> k_closest_results_id;
       
                     for (int j=0 ; j<filter_set.size() ; j++ ) {

@@ -22,12 +22,12 @@ void robust_prune(GraphNode, vector<GraphNode>&, float, int);
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>&, float, int, int, GraphNode&, vector<int>&);
+void vamana(float, int, int, GraphNode&, vector<graph_node>&);
 
 
 
 /*Creates a random r-regular graph and returns it from the parameters*/
-void create_random_graph(vector<graph_node>&, vector<vector<float>>&, int, vector<int>&);
+void create_random_graph(vector<graph_node>&, int);
 
 
 
