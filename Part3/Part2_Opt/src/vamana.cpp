@@ -402,7 +402,7 @@ GraphNode find_medoid(vector<graph_node>& graph) {
 /*Returns a random permutation of integers*/
 vector<int> give_random_permutation(int size) {
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
 
     vector<int> sigma(size);
 
@@ -421,7 +421,7 @@ vector<int> give_random_permutation(int size) {
 /**/
 map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>& filter_set) {
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
 
     map<int, int> M; // Shared map for storing results
     map<int, int> T; // Shared map for keeping counts

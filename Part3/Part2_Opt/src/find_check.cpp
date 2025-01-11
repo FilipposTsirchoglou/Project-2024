@@ -14,7 +14,7 @@ using namespace  std;
 /*Takes a vector of graph node pointers and a vector of node ids and returns a vector of the ids that are in the same vector position but are different*/
 vector<int> temp_vectors_equal(vector<GraphNode>& greedy_res, vector<int>& gt_res) {  
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
     
     bool are_same;
     vector<int> dif;
