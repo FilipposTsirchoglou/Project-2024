@@ -1,5 +1,8 @@
 /*util.cpp*/
 
+#include <omp.h>
+
+
 #include "../include/util.hpp"
 #include <math.h>
 #include <time.h>
@@ -14,25 +17,38 @@ using namespace std;
 
 /*Returns a vector with the difference of the k-approx NNs and the visited nodes*/
 vector<GraphNode> vectors_difference(vector<GraphNode>& l_closest, vector<GraphNode>& visited) {  
-    
-    bool are_same;                              // A flag that turns to true if two nodes are the same
-    vector<GraphNode> difference = {};              // A vector with the different nodes
 
-    for(int i = 0 ; i < l_closest.size() ; i++) {
-        are_same = false;
-        for(int j = 0 ; j < visited.size() ; j++) {
-            if(l_closest[i] == visited[j]) {     
-                are_same = true;
-                break;
+    omp_set_num_threads(4);
+    
+    // A vector to store the final difference
+    std::vector<GraphNode> difference;
+    
+    // Use thread-private temporary vectors to avoid race conditions
+    #pragma omp parallel
+    
+    {
+        vector<GraphNode> local_difference;   // Private vector for each thread
+
+        #pragma omp for nowait
+        for (int i = 0; i < l_closest.size(); i++) {
+            bool are_same = false;
+            for (int j = 0; j < visited.size(); j++) {
+                if (l_closest[i] == visited[j]) {
+                    are_same = true;
+                    break;
+                }
+            }
+            if (!are_same) {
+                local_difference.push_back(l_closest[i]);
             }
         }
-        if (are_same == false) {
-            difference.push_back(l_closest[i]);
-        }
+
+        // Merge local results into the shared vector
+        #pragma omp critical
+        difference.insert(difference.end(), local_difference.begin(), local_difference.end());
     }
     
     return difference;
-
 }
 
 
@@ -79,27 +95,49 @@ int get_random_number(int max) {
 
 /*Returns a pointer to the graph_node that has the min euclidean distance from xq*/
 GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq, vector<double>& distance_vec) {
-    priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;   // Priority queue using a min heap. Inserts the elements with priority the smallest euclidian distance
+    GraphNode p_star = nullptr; // Pointer to the node with minimum distance
+    double min_distance = std::numeric_limits<double>::max(); // Initialize minimum distance
 
-    for (int i=0 ; i<p.size() ; i++) {
+    #pragma omp parallel num_threads(4)
+    {
+        GraphNode local_p_star = nullptr; // Thread-local minimum node
+        double local_min_distance = numeric_limits<double>::max(); // Thread-local minimum distance
 
-        if(distance_vec[p[i]->id] == -1.0) {
+        #pragma omp for
+        for (int i = 0; i < p.size(); i++) {
 
-            p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
-            distance_vec[p[i]->id] = p[i]->eucl_dist;
-            pq.push(p[i]);
+            double current_distance;
 
+            if (distance_vec[p[i]->id] == -1.0) {
+
+                current_distance = euclidean(p[i]->cords, xq.cords);
+                distance_vec[p[i]->id] = current_distance;
+
+            } else {
+
+                current_distance = distance_vec[p[i]->id];
+
+            }
+
+            if (current_distance < local_min_distance) {
+
+                local_min_distance = current_distance;
+                local_p_star = p[i];
+
+            }
         }
-        else {
 
-            pq.push(p[i]);
-            
+        // Compare thread-local results and update the global minimum
+        #pragma omp critical
+        {
+            if (local_min_distance < min_distance) {
+
+                min_distance = local_min_distance;
+                p_star = local_p_star;
+                
+            }
         }
-
     }
 
-    GraphNode p_star = pq.top();
-    
     return p_star;
-    
 }
