@@ -94,52 +94,42 @@ int get_random_number(int max) {
 
 
 /*Returns a pointer to the graph_node that has the min euclidean distance from xq*/
-GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq, vector<double>& distance_vec) {
-    GraphNode p_star = nullptr; // Pointer to the node with minimum distance
-    double min_distance = std::numeric_limits<double>::max(); // Initialize minimum distance
+GraphNode find_min_eucl(std::vector<GraphNode>& p, graph_node& xq) {
 
-    #pragma omp parallel num_threads(4)
+    omp_set_num_threads(2);
+
+    GraphNode* min_node = nullptr;
+    float min_distance = numeric_limits<float>::max();
+
+    #pragma omp parallel
     {
-        GraphNode local_p_star = nullptr; // Thread-local minimum node
-        double local_min_distance = numeric_limits<double>::max(); // Thread-local minimum distance
+        GraphNode* local_min_node = nullptr;
+        float local_min_distance = numeric_limits<float>::max();
 
+        // Parallel computation of Euclidean distances
         #pragma omp for
         for (int i = 0; i < p.size(); i++) {
+            float dist = euclidean(p[i]->cords, xq.cords);
+            p[i]->eucl_dist = dist;
 
-            double current_distance;
-
-            if (distance_vec[p[i]->id] == -1.0) {
-
-                current_distance = euclidean(p[i]->cords, xq.cords);
-                distance_vec[p[i]->id] = current_distance;
-
-            } else {
-
-                current_distance = distance_vec[p[i]->id];
-
-            }
-
-            if (current_distance < local_min_distance) {
-
-                local_min_distance = current_distance;
-                local_p_star = p[i];
-
+            // Update local minimum
+            if (dist < local_min_distance) {
+                local_min_distance = dist;
+                local_min_node = &p[i];
             }
         }
 
-        // Compare thread-local results and update the global minimum
+        // Update global minimum using a critical section
         #pragma omp critical
         {
             if (local_min_distance < min_distance) {
-
                 min_distance = local_min_distance;
-                p_star = local_p_star;
-                
+                min_node = local_min_node;
             }
         }
     }
 
-    return p_star;
+    return *min_node;
 }
 
 

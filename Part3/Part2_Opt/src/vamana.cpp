@@ -230,7 +230,7 @@ void vamana(float a, int L, int R, GraphNode& med, vector<graph_node>& graph) {
 
 
     // Create necessary variables
-    vector<graph_node> graph;
+    //vector<graph_node> graph;
     vector<int> sigma;
 
     // Set up parallel sections
@@ -241,7 +241,7 @@ void vamana(float a, int L, int R, GraphNode& med, vector<graph_node>& graph) {
         {
             // Ensure this section runs with a single thread
             //omp_set_num_threads(1);
-            create_random_graph(graph, all_points, R, pos);
+            create_random_graph(graph, R);
         }
 
         // Section for give_random_permutation
@@ -421,104 +421,102 @@ vector<int> give_random_permutation(int size) {
 /**/
 map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>& filter_set) {
 
-  map<int, int> M;             // Initializing M to be an empty map
+    omp_set_num_threads(4);
 
-  for (int i = 0 ; i < filter_set.size() ; i++) {
+    map<int, int> M; // Shared map for storing results
+    map<int, int> T; // Shared map for keeping counts
 
-    M[filter_set[i]] = -1;
+    // Initialize M and T
+    #pragma omp parallel
+    {
+        #pragma omp for
 
-  }
-  
-  map<int, int> T;
+        for (int i = 0; i < filter_set.size(); i++) {
 
-  for (int i = 0 ; i < graph.size() ; i++) {
-
-    T[i] = 0;                                         // Initializing T to a zero map
-
-  }
-
-
-  for (int i = 0 ; i < filter_set.size() ; i++) {
-    
-    vector<int> pf = {};        //positions 
-
-    for (int j = 0 ; j < graph.size() ; j++) {
-
-      bool found = false;
-      for (int k = 0 ; k < graph[j].filters.size() ; k++) {
-
-        if (graph[j].filters[k] == filter_set[i]) {            // If the node has the same filter with the current filter put it in Pf
-
-          found = true;
-          break;
+            #pragma omp critical
+            {
+                M[filter_set[i]] = -1;
+            }
 
         }
-      }
 
-      if (found) {
+        #pragma omp for
 
-        pf.push_back(j);
+        for (int i = 0; i < graph.size(); i++) {
 
-      }
-
+            #pragma omp critical
+            {
+                T[i] = 0;
+            }
+        }
     }
 
-    vector<int> rf = {};
+    // Main computation
+    #pragma omp parallel for
 
-    do {
+    for (int i = 0; i < filter_set.size(); i++) {
 
-      int random_ind = get_random_number(pf.size() - 1);
+        vector<int> pf; // Thread-local positions
 
-      if (rf.size() == 0) {                   // If Rf is empty, we surely insert the node with id = random_id
+        // Find nodes matching the current filter
+        for (int j = 0; j < graph.size(); j++) {
 
-        rf.push_back(pf[random_ind]);
+            bool found = false;
 
-      }
-      else {                                  // If Rf is not empty, we have to check if the node with id = random_id already exists
+            for (int k = 0; k < graph[j].filters.size(); k++) {
 
-        bool flag = true;                // Flag that shows that the node with id = random_id does not already exist in Rf
+                if (graph[j].filters[k] == filter_set[i]) {
 
-        for (int j = 0 ; j < rf.size() ; j++) {
-          
-          if (rf[j] == pf[random_ind]) {              // The node already exists
+                    found = true;
+                    break;
 
-            flag = false;
-            break;
+                }
+            }
+            if (found) {
 
-          }
+                pf.push_back(j);
+
+            }
         }
 
-        if (flag == true) {
+        // Select random nodes
+        vector<int> rf;
+        do {
 
-          rf.push_back(pf[random_ind]);
+            int random_ind = get_random_number(pf.size() - 1);
 
+            if (find(rf.begin(), rf.end(), pf[random_ind]) == rf.end()) {
+                rf.push_back(pf[random_ind]);
+            }
+
+        } while (rf.size() < th);
+
+        // Find the node with the minimum T value
+        int min = 100000;
+        int p_star = -1;
+
+        for (int r : rf) {
+
+            #pragma omp critical
+            {
+                if (T[r] < min) {
+
+                    min = T[r];
+                    p_star = r;
+
+                }
+            }
         }
-      }
 
-    } while (rf.size() < th);     // We stop when Rf has th nodes
-
-    int min = 100000;
-   
-    int p_star = -1;
-
-    for (int i = 0 ; i < rf.size() ; i++) {
-      
-      if (T[rf[i]] < min) {
-
-        min = T[rf[i]];
-        p_star = rf[i];
-
-      }
+        // Update M and T
+        #pragma omp critical
+        {
+            M[filter_set[i]] = p_star;
+            T[p_star]++;
+        }
     }
 
-    M[filter_set[i]] = p_star;
- 
-    T[p_star]++;
-
-  }
-
-  return M;
-
+    return M;
 }
 
 

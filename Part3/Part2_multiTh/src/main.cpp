@@ -14,6 +14,7 @@
 #include "include/find_check.hpp" 
 #include "include/file_operations.hpp"*/
 #include <iostream>
+#include <omp.h>
 #include "../include/util.hpp"
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
@@ -53,36 +54,44 @@ int main(void) {
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
 
-    for(int i = 0 ; i < nodes.size() ; i++) {
-    
-        //graph creation
+    #pragma omp parallel for num_threads(2) schedule(static)
+    for (int i = 0; i < nodes.size(); i++) {
         graph_node g;
         g.id = i;
 
-        for(int j = 2 ; j < nodes[i].size() ; j++) {
-        g.cords.push_back(nodes[i][j]);
+        for (int j = 2; j < nodes[i].size(); j++) {
+            g.cords.push_back(nodes[i][j]);
         }
 
         g.eucl_dist = -1;
         g.outgoing = {};
         g.filters.push_back(nodes[i][0]);
 
+        // Use a critical section to safely push into the shared graph vector
+        #pragma omp critical
         graph.push_back(g);
-
     }
 
     vector<int> how_many_points_by_filter;    // Shows how many points each filter has eg. filter[1] has the numver of filters for the filter 1
 
-    for (int i=0 ; i<filter_set.size() ; i++) {   // For every filter
+    // Pre-allocate the vector to avoid synchronization issues during parallel execution
+    how_many_points_by_filter.resize(filter_set.size(), 0);
 
+    #pragma omp parallel for num_threads(2) schedule(static)
+    for (int i = 0; i < filter_set.size(); i++) { // For every filter
         int filter_count = 0;
-        for (int j=0 ; j<nodes.size() ; j++) {
+
+        // Count the occurrences of the current filter in the nodes vector
+        for (int j = 0; j < nodes.size(); j++) {
             if (nodes[j][0] == filter_set[i]) {
                 filter_count++;
             }
         }
-        how_many_points_by_filter.push_back(filter_count);
+
+        // Safely store the result
+        how_many_points_by_filter[i] = filter_count;
     }
+
 
     map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
     cout << METHOD_TYPE << endl;
