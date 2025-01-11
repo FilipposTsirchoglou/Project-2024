@@ -11,94 +11,17 @@ using namespace std;
 /*Returns a vector l_closest that cointains the k closest NN's and a vector v cointaining the visited nodes*/    
 pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& graph, graph_node& s, graph_node& xq, int k, int l , int gogo) {
 
-    /*if (gogo ==1) {
-      cout << "Graph in greedy" << endl;
-      for ( int i = 0 ; i < graph.size() ; i++) {
-        cout << "id: " << graph[i].id << endl;
-        cout << "cords: " << endl;
-        for (int j = 0 ; j < graph[i].cords.size() ; j++) {
-          cout << graph[i].cords[j] << " ";
-        }
-        cout << endl;
-      }
-      cout << endl;
-    }*/
      vector<GraphNode> l_closest= {&s};
     vector<GraphNode> visited = {};
     vector<GraphNode> p = vectors_difference(l_closest, visited);  // Computes L-V
 
-    /*if (gogo==1) {
-      cout << "This is P: " << endl;
-      for (int i=0 ; i<p.size() ; i++) {
-        cout << "id: " << p[i]->id << endl;
-        cout << "cords: " << endl;
-        for (int j=0 ; j<p[i]->cords.size() ; j++) {
-          cout << p[i]->cords[j] << " ";
-        }
-        cout << endl;
-      }
-      cout << endl;
-
-    }*/
-
-
-    //cout << "P size:" << p.size() << endl;
-    /*for (int i = 0 ; i < p.size() ; i++) {
-        cout << "id: " << p[i]->id << " ";
-        cout << "cords size: " << p[i]->cords.size() << endl;
-        cout << endl;
-    }*/
-
-    //cout << "medoid in greedy search" << endl;
-    //cout << "medoid id: " << s.id << endl;
-    //cout << "medoid cords: " << endl;
-    /*for (int i = 0 ; i < s.cords.size() ; i++) {
-        cout << s.cords[i] << " ";
-    }
-    cout << endl;*/
-    /*cout << p[0]->id << endl;
-    cout << "cords size: " << p[0]->cords.size() << endl;
-    cout << "cords: " << endl;
-    for (int i=0 ; i<p[0]->cords.size() ; i++) {
-        cout << p[0]->cords[i] << " ";
-    }
-    cout << endl;
-
-    cout << "DONE" << endl;*/
 
     while(!p.empty()) {      // While L\V != empty set
-            //GraphNode tmp_zq = &xq;
-        /*cout << p[0]->id << endl;
-        cout << "cords size: " << p[0]->cords.size() << endl;
-        cout << "cords: " << endl;
-        for (int i=0 ; i<p[0]->cords.size() ; i++) {
-            cout << p[0]->cords[i] << " ";
-        }
-        cout << endl;*/
-
-        //cout << "DONE" << endl;
+  
        GraphNode p_star = find_min_eucl(p, xq);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
-
-       /*if (gogo ==1 ) {
-        cout << "p_star id: " << p_star->id << endl;
-        cout << "p_star cords: " << endl;
-        for (int i=0 ; i<p_star->cords.size() ; i++) {
-          cout << p_star->cords[i] << " ";
-        }
-        cout << endl;
-       }*/
       
         // Update L ← L ∪ Nout(p_star) and V ← V ∪ {p_star} 
         for (forward_list<GraphNode>:: iterator it = p_star->outgoing.begin() ; it != p_star->outgoing.end() ; ++it) {
-
-          /*if (gogo ==1) {
-            cout << "outgoing id: " << (*it)->id << endl;
-            cout << "outgoing cords: " << endl;
-            for (int i=0 ; i<(*it)->cords.size() ; i++) {
-              cout << (*it)->cords[i] << " ";
-            }
-            cout << endl;
-          }*/
             
             auto cond = find(l_closest.begin(), l_closest.end(), (*it));    // Search if the elements inside the outgoing list of p_star already exist in the l_closest vector
 
@@ -123,25 +46,6 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         }
         
         p = vectors_difference(l_closest, visited);      // Recompute L-V before the condition is checked  in the while loop
-        /*if (gogo==1) {
-          cout << "This is P recompute: " << endl;
-          for (int i=0 ; i<p.size() ; i++) {
-            cout << "id: " << p[i]->id << endl;
-            cout << "cords: " << endl;
-            for (int j=0 ; j<p[i]->cords.size() ; j++) {
-              cout << p[i]->cords[j] << " ";
-            }
-            cout << endl;
-          }
-          cout << endl;
-        }*/
-
-        //cout << "P RECOMPUTATION size:"<< p.size() << endl;
-        /*for (int i = 0 ; i < p.size() ; i++) {
-          cout << "id: " << p[i]->id << " ";
-          cout << "cord size : "<< p[i]->cords.size() << endl;
-          cout << endl;
-        }*/
     }
 
     if( !(l_closest.empty()) && (l_closest.size() > k)){
@@ -632,33 +536,10 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r) {
         }
     }                   // V ← (V ∪ Nout(p)) \ {p}
     p->outgoing = {};
-      //p->outgoing.clear();    // Nout(p) ← ∅
-
-      /*found_at_pos = find(v.begin(), v.end(), p);    
-      if (found_at_pos != v.end()) {    
-          cout << "p was found again in v" << endl;
-          cout << "p: " << p->id << " eucl " << p->eucl_dist << " filter " << p->filters[0] << endl;
-
-          for (int i=0 ; i<v.size() ; i++) {
-              cout << "v: " << v[i]->id << " , ";
-          }
-          cout << endl; //ERASING P AGAIN JUST IN CASE
-          v.erase(found_at_pos);
-
-          for (int i=0 ; i<v.size() ; i++) {
-              cout << "v: " << v[i]->id << " , ";
-          }
-          cout << endl;
-      }*/
 
     while (!v.empty()) {
-      /*cout << "v: "; 
-      for (int i = 0 ; i < v.size() ; i++) {
-        cout << v[i]->id << " , ";
-      }
-      cout << endl;*/
+
       GraphNode p_star = find_min_eucl(v, *p);
-      //cout << "p_star: " << p_star->id << ", euclidian " << p_star->eucl_dist<< endl;
     
       auto cond5 = find(p->outgoing.begin(), p->outgoing.end(), p_star);
       if ( (p->id != p_star->id) && (cond5 == p->outgoing.end()) ) {              // MAYBE NOT NEEDED
@@ -699,19 +580,12 @@ void filteredRobustPrune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 /**/
 vector<graph_node> filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int>& filter_set, int th, map<int, int>& med) {
 
-  //We have the medoid
-  //we have the filter set
-
   vector<int> sigma = give_random_permutation(graph.size());
 
   //itterate all the points of the vector in random order
   for (int i = 0 ; i < sigma.size() ; i++) {      
-    cout << i << endl;
+    //cout << i << endl;
     int start_node = med[graph[sigma[i]].filters[0]];   //the pos of the medoid of the filter of the current node in the graph vector
-
-    /*check that nodes with the same filter have the same medoid*/
-
-    /*----------------------------------------------------------*/
    
     vector<GraphNode> s = {};     // Holds the medoids of the filters of the current node. In our case it will hold only one element
     s.push_back(&graph[start_node]);    
