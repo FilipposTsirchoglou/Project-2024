@@ -114,58 +114,63 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med) {
 
 
-    // Creates a random graph using the all_points vector and stores it in the gaph vector
+    // Create necessary variables
     vector<graph_node> graph;
-    create_random_graph(graph,all_points, R);
-  
-    // Stores a random permutation atvector sigma
-    vector<int> sigma = give_random_permutation(graph.size());
+    vector<int> sigma;
 
-    GraphNode s = find_medoid(graph);
-     
+    // Set up parallel sections
+    #pragma omp parallel sections num_threads(2)
+    {
+        // Section for create_random_graph
+        #pragma omp section
+        {
+            // Ensure this section runs with a single thread
+            //omp_set_num_threads(1);
+            create_random_graph(graph, all_points, R);
+        }
+
+        // Section for give_random_permutation
+        #pragma omp section
+        {
+            // Ensure give_random_permutation uses 2 threads internally
+            //omp_set_num_threads(2);
+            sigma = give_random_permutation(all_points.size());
+        }
+    }
+
+    // Continue with the rest of the vamana function
+    
+    int rn = get_random_number(all_points.size());
+    GraphNode s = &graph[rn];
     med = s;
     cout << "Creating vamana indexing graph..." << endl;
 
-    for (int i=0 ; i<sigma.size() ; i++) {       // Itterate all the points of the vector in random order
-        
-        if( i % 1000 == 0) {
-
+    for (int i = 0; i < sigma.size(); i++) {  // Iterate all the points of the vector in random order
+        if (i % 1000 == 0) {
             cout << (i / 100) << "%" << endl;
-
         }
 
         pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, *s, graph[sigma[i]], 1, L);
-
         vector<GraphNode> v = res.second;        
         robust_prune(&graph[sigma[i]], v, a, R);
         
         // For all points j in Nout(σ(i))
-        for (auto it = graph[sigma[i]].outgoing.begin() ; it != graph[sigma[i]].outgoing.end() ; ++it) {
-            
+        for (auto it = graph[sigma[i]].outgoing.begin(); it != graph[sigma[i]].outgoing.end(); ++it) {
             vector<GraphNode> temp_vec;
 
             // temp_vec = Nout(j) U {σ(i)}
-            for (auto it2 = (*it)->outgoing.begin() ; it2 != (*it)->outgoing.end() ; ++it2) {
-
+            for (auto it2 = (*it)->outgoing.begin(); it2 != (*it)->outgoing.end(); ++it2) {
                 temp_vec.push_back((*it2));
-
             }
-
             temp_vec.push_back(&graph[sigma[i]]);
-            
+
             if (temp_vec.size() > R) {
-
                 robust_prune((*it), temp_vec, a, R);
-
-            }
-            else {
-
+            } else {
                 (*it)->outgoing.push_front(&graph[sigma[i]]);
-
             }
         }
     }
-
     cout << "100%" << endl;
     return graph;
 }
