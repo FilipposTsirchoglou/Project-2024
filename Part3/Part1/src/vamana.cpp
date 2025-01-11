@@ -104,7 +104,7 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
 
     GraphNode s = NULL;
     if (RANDOM_MEDOID == 1) {
-        int rn = get_random_number(all_points.size());
+        int rn = get_random_number(all_points.size() - 1);
         s = &graph[rn];
     }
     else {

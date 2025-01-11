@@ -3,7 +3,8 @@ SRC = src
 TESTS = unit_testing
 
 CC = g++
-CFLAGS = -O2 -I$(LIB)  # Optimization flag and include path for headers
+CFLAGS = -O2 -fopenmp -I$(LIB)  # Optimization, OpenMP, and include path for headers
+LDFLAGS = -fopenmp              # Explicitly add OpenMP for linking
 
 OBJS = $(SRC)/file_operations.o $(SRC)/util.o $(SRC)/vamana.o $(SRC)/main.o $(SRC)/find_check.o
 EXEC = main
@@ -17,11 +18,11 @@ $(SRC)/%.o: $(SRC)/%.cpp
 
 # Main executable
 $(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) -o $(EXEC) $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $(EXEC)
 
 # Test executable
 $(TESTS_EXEC): $(TESTS)/temp_tests.cpp $(TEST_OBJS)
-	$(CC) $(CFLAGS) $(TEST_OBJS) $(TESTS)/temp_tests.cpp -o $(TESTS_EXEC)
+	$(CC) $(TEST_OBJS) $(TESTS)/temp_tests.cpp $(LDFLAGS) -o $(TESTS_EXEC)
 
 # Run tests
 tests: $(TESTS_EXEC)

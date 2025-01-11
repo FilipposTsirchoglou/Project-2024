@@ -622,12 +622,12 @@ void test_vectors_differnce(void) {
 
 void test_read_config_file(void) {
 
-    string DATA_FILE, QUERIES_FILE, GROUNDTRUTH;
+    string DATA_FILE, QUERIES_FILE, GROUNDTRUTH, GRAPH, GRAPH_NAME;
     int L, R, k;
     float a;
-    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, GROUNDTRUTH, R, L, a, k);
+    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, GROUNDTRUTH, GRAPH, GRAPH_NAME, R, L, a, k);
 
-    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && GROUNDTRUTH == "test" && R==0 && L==0 && a==0 && k==0);
+    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && GROUNDTRUTH == "test" && GRAPH == "YES" && GRAPH_NAME == "test" && R==0 && L==0 && a==0 && k==0);
 }
 
 

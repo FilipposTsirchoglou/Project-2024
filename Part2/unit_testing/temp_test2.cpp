@@ -169,8 +169,10 @@ void test_create_random_graph(void) {
     points.push_back(vec7);
     points.push_back(vec8);
 
+    vector<int> pos = {0,1,2,3,4,5,7};
+
     vector<graph_node> graph;
-    create_random_graph(graph, points, 2);            // We create a random graph with the 8 points
+    create_random_graph(graph, points, 2, pos);            // We create a random graph with the 8 points
 
     // We expect an initialized graph with 8 nodes
     TEST_ASSERT(graph.size() == 8);
@@ -289,7 +291,7 @@ void test_greedy_search(void) {
                                                 // We set the outgoing conncetions for every node
 
     // Calling greedy search with start point 0 and query point 9, k = 2, L = 4
-    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[9], 2, 4);
+    pair<vector<GraphNode>, vector<GraphNode>> res = greedy_search(graph, graph[0], graph[9], 2, 4, 0);
 
     // After performing greedy search on the graph above manually, we find out that the k = 2 closest points are 8 and 7
     TEST_ASSERT((res.first[0] == &graph[8]) && (res.first[1] == &graph[7]));
@@ -530,7 +532,9 @@ void test_vamana(void) {
     int r = 4;
     GraphNode med = NULL;
 
-    vector<graph_node> vamana_graph = vamana(points, a, l, r, med);
+    vector<int> pos = {0,1,2,3,4,5,6,7};
+
+    vector<graph_node> vamana_graph = vamana(points, a, l, r, med, pos);
 
     // We want to make sure that the vamana function returns the medoid properly
     TEST_ASSERT(med != NULL);
@@ -969,13 +973,13 @@ void test_find_filter_set(void) {
 
 void test_read_config_file(void) {
 
-    string DATA_FILE, QUERIES_FILE, METHOD_TYPE;
+    string DATA_FILE, QUERIES_FILE, METHOD_TYPE, GRAPH, GRAPH_NAME;
     int L, R, k, th, L_small, R_small, R_stich;
     float a;
-    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);
+    read_config_file("unit_testing/test_config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);
 
     // Testing that every field from the configuration file is read properly
-    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && R==0 && L==0 && a==0 && k==0 && th==0 && L_small == 0 && R_small == 0 && R_stich == 0 && METHOD_TYPE == "S0");
+    TEST_ASSERT(DATA_FILE == "test" && QUERIES_FILE == "test" && GRAPH_NAME == "test" && R==0 && L==0 && a==0 && k==0 && th==0 && L_small == 0 && R_small == 0 && R_stich == 0 && METHOD_TYPE == "S0");
 }
 
 
