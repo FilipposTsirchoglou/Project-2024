@@ -15,6 +15,7 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
 
 
     vector<double> distance_vec(graph.size(), -1.0);
+    //cout << "distance vec size: " << distance_vec.size() << endl;
 
     /*if (gogo ==1) {
       cout << "Graph in greedy" << endl;
@@ -79,9 +80,16 @@ pair<vector<GraphNode>, vector<GraphNode>> greedy_search(vector<graph_node>& gra
         for (int i=0 ; i<p[0]->cords.size() ; i++) {
             cout << p[0]->cords[i] << " ";
         }
-        cout << endl;*/
+        cout << endl;
 
         //cout << "DONE" << endl;
+        cout << "p size: " << p.size() << endl;
+        cout << "xq " << xq.id << endl;
+        cout << "xq cords: " << endl;
+        for (int i=0 ; i<xq.cords.size() ; i++) {
+          cout << xq.cords[i] << " ";
+        }
+        cout << endl;*/
        GraphNode p_star = find_min_eucl(p, xq, distance_vec);     // Finds the graph node p_star from all the p that has the min euclidian distance from xq
 
        /*if (gogo ==1 ) {
@@ -218,7 +226,7 @@ void robust_prune(GraphNode p, vector<GraphNode>& v, float a, int r) {
 
 
 /*Returns a vamana indexing graph*/
-vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int R, GraphNode& med, vector<int>& pos) {
+void vamana(float a, int L, int R, GraphNode& med, vector<graph_node>& graph) {
 
 
     // Create necessary variables
@@ -241,13 +249,13 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
         {
             // Ensure give_random_permutation uses 2 threads internally
             //omp_set_num_threads(2);
-            sigma = give_random_permutation(all_points.size());
+            sigma = give_random_permutation(graph.size());
         }
     }
 
     // Continue with the rest of the vamana function
     
-    int rn = get_random_number(all_points.size());
+    int rn = get_random_number(graph.size()-1);
     GraphNode s = &graph[rn];
     med = s;
     cout << "Creating vamana indexing graph..." << endl;
@@ -279,15 +287,15 @@ vector<graph_node> vamana(vector<vector<float>>& all_points, float a, int L, int
         }
     }
     cout << "100%" << endl;
-    return graph;
+    //return graph;
 }
 
 
 
 /*Creates a random r-regular graph and returns it from the parameters*/
-void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_points, int r, vector<int>& pos) {
+void create_random_graph(vector<graph_node>& graph, int r) {
     
-    for(int i = 0 ; i < all_points.size() ; i++) {
+   /* for(int i = 0 ; i < all_points.size() ; i++) {
 
         graph_node g;
         //g.id = i;
@@ -296,7 +304,7 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
         g.cords = all_points[i];
         graph.push_back(g);
 
-    }
+    } */
 
     if (graph.size() >= r) {  //pissible change  
 

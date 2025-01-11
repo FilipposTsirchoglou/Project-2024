@@ -7,6 +7,7 @@
 #include <time.h>
 #include <queue>
 #include <algorithm>
+#include <iostream>
 
 
 #include <assert.h>
@@ -98,11 +99,14 @@ GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq, vector<double>& di
     priority_queue<GraphNode, vector<GraphNode>, CompareDistance> pq;   // Priority queue using a min heap. Inserts the elements with priority the smallest euclidian distance
 
     for (int i=0 ; i<p.size() ; i++) {
-
-        if(distance_vec[p[i]->id] == -1.0) {
-
+       /* cout << "in for" << endl;
+        cout << distance_vec.size() << endl;
+        cout << p[i]->id << endl;
+        cout << p[i]->pos << endl;*/
+        if(distance_vec[p[i]->pos] == -1.0) {
+            //cout << "in if" << endl;
             p[i]->eucl_dist = euclidean(p[i]->cords, xq.cords);
-            distance_vec[p[i]->id] = p[i]->eucl_dist;
+            distance_vec[p[i]->pos] = p[i]->eucl_dist;
             pq.push(p[i]);
 
         }
