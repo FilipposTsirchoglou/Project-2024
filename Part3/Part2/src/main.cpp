@@ -18,8 +18,10 @@
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
 #include "../include/file_operations.hpp"
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 int main(void) {
 
@@ -35,6 +37,7 @@ int main(void) {
     string DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, METHOD_TYPE;
     int L, R, k, th, L_small, R_small, R_stich;
     float a;
+    chrono::high_resolution_clock::time_point start, stop, start_queries, stop_queries;
 
     read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
@@ -53,6 +56,7 @@ int main(void) {
     vector<int> filter_set = find_filter_set(nodes);
 
     /*Graph Creation*/
+    start = high_resolution_clock::now();
     for(int i = 0 ; i < nodes.size() ; i++) {
         graph_node g;
         g.id = i;
@@ -94,6 +98,7 @@ int main(void) {
         if (GRAPH == "NO") {
             /*Creates a new graph and saves it to a .bin file*/
             vamana_filtered = filteredVamana(graph, a, L, R, filter_set, th, med);
+            stop = high_resolution_clock::now();
             save_graph(GRAPH_NAME, vamana_filtered, dummy_med);
         } else if (GRAPH == "YES") {
             /*Reads the graph from a .bin file*/
@@ -103,7 +108,7 @@ int main(void) {
         int count = 0;
         float recall_sum = 0;
         if (METHOD_TYPE == "F1") {
-
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 1) {     // Type 1
@@ -160,12 +165,19 @@ int main(void) {
                     recall_sum += recall;
                 } 
             }
+            stop_queries = high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 1 queries using filtered vamana: " << avg_recall << endl;
 
-        } else if (METHOD_TYPE == "F0") {
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation time: " << duration.count() << " seconds" << endl;
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries time: " << duration_queries.count() << " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)duration_queries.count()<< endl;
 
+        } else if (METHOD_TYPE == "F0") {
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 0) {     // Type 0
@@ -233,12 +245,21 @@ int main(void) {
                     recall_sum += recall;
                 } 
             }
+            stop_queries = high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using filtered vamana: " << avg_recall << endl;
-        }  
-    } else if (METHOD_TYPE == "S0" || METHOD_TYPE == "S1") {
 
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation time: " << duration.count() << " seconds" << endl;
+           
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries time: " << duration_queries.count() << " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)duration_queries.count() << endl;
+        } 
+
+    } else if (METHOD_TYPE == "S0" || METHOD_TYPE == "S1") {
+        chrono::high_resolution_clock::time_point start_s0, stop_s0;
         
         if (METHOD_TYPE == "S0") {
 
@@ -259,7 +280,9 @@ int main(void) {
             int med_id = -1;
    
             if (GRAPH == "NO") {
+                start_s0 = high_resolution_clock::now();
                 stitched_vamana_graph = vamana(all_points, a, L, R, med, nothing);
+                stop_s0 = high_resolution_clock::now();
                 save_graph(GRAPH_NAME, stitched_vamana_graph, med);
             } else if (GRAPH == "YES") {
                 read_graph(GRAPH_NAME, stitched_vamana_graph, med_id);
@@ -267,9 +290,10 @@ int main(void) {
                 //med = find_medoid(stitched_vamana_graph);
 
             }
+            
             //med = find_medoid(stitched_vamana_graph);
             // At this point the stitched vamana has been created
-
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
                 
                 if (queries[i][0] == 0) {    //if it is a type 0 query
@@ -338,10 +362,18 @@ int main(void) {
                     recall_sum += recall;
 
                 }
+                stop_queries = high_resolution_clock::now();
             } 
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using stitched vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop_s0 - start_s0);
+            cout << "Index creation time: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries time: " << duration_queries.count() << " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)duration_queries.count() << endl;
         }
         else if (METHOD_TYPE == "S1") {
             

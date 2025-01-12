@@ -5,8 +5,10 @@
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
 #include "../include/file_operations.hpp"
+#include <chrono>
 
 using namespace  std;
+using namespace std::chrono;
 
 /*MAIN FUNCTION*/
 int main(void){
@@ -15,7 +17,7 @@ int main(void){
     int R, L, k;
     float a;
     read_config_file("config.txt", DATA, QUERIES, GROUNDTRUTH, R, L, a, k);
-    
+    high_resolution_clock::time_point start, stop;
 
     
     /*Read the base file and store the data in the vector all_points*/
@@ -28,7 +30,10 @@ int main(void){
     GraphNode med = NULL;
     
     /*Vamana handles the creation of the vamana indexing graph*/
+    start = high_resolution_clock::now();
     vector<graph_node> vamana_graph = vamana(all_points, a, L, R, med);
+    stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
 
     /*Reads the file with the queries and stores the data in the q_points vector*/
     vector<vector<float>> q_points;
@@ -49,26 +54,37 @@ int main(void){
 
 
     /*Finds k closest for random single query points and checks the recall based on the groundtruth file*/
-    vector<GraphNode> my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[12], k, L, *med);
-    float recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[12]);
-    cout << "recall: " << recall << endl;
+    //vector<GraphNode> my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[12], k, L, *med);
+    //float recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[12]);
+    //cout << "recall: " << recall << endl;
 
-    my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[50], k, L, *med);
-    recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[50]);
-    cout << "recall: " << recall << endl;
+    //my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[50], k, L, *med);
+    //recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[50]);
+    //cout << "recall: " << recall << endl;
 
-    my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[76], k, L, *med);
-    recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[76]);
-    cout << "recall: " << recall << endl;
+    //my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[76], k, L, *med);
+    //recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[76]);
+    //cout << "recall: " << recall << endl;
 
-    my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[4], k, L, *med);
-    recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[4]);
-    cout << "recall: " << recall << endl;
+    //my_k_closest = find_k_closest_for_single_query_point(vamana_graph, q_points[4], k, L, *med);
+    //recall = check_groundtruth_for_single_query_point(my_k_closest, gt_points[4]);
+    //cout << "recall: " << recall << endl;
 
     /*Finds k closest for all query points and returns the avergae recall*/
+    auto start_queries = high_resolution_clock::now();
     vector<vector<GraphNode>> my_k_closest_vec = find_k_closest_for_all_query_points(vamana_graph, q_points, k, L, *med);
-    recall = check_groundtruth_for_all_query_points(my_k_closest_vec, gt_points);
+    auto stop_queries = high_resolution_clock::now();
+
+    float recall = check_groundtruth_for_all_query_points(my_k_closest_vec, gt_points);
     cout << "average recall: " << recall << endl;
+
+    auto duration_queries = duration_cast<microseconds>(stop_queries - start_queries);
+
+    cout <<"Vamana Creation: " << duration.count() << " seconds" << endl;
+    cout << "Queries: " << duration_queries.count() << " microseconds" << endl;
+    //cout << "Queries per second: " << (q_points.size() / duration_queries.count()) * 1000000 << endl;
+    double queries_per_second = (q_points.size() / (double)duration_queries.count());
+    cout << "queries per microsecond: " << queries_per_second << endl;
 
     return 0;
 }
