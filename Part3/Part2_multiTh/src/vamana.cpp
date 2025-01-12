@@ -327,10 +327,9 @@ vector<int> give_random_permutation(int size) {
 
 
 
-/**/
 map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>& filter_set) {
 
-    omp_set_num_threads(2);
+    omp_set_num_threads(2); // Set the number of threads to 2
 
     map<int, int> M; // Shared map for storing results
     map<int, int> T; // Shared map for keeping counts
@@ -339,20 +338,15 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
     #pragma omp parallel
     {
         #pragma omp for
-
         for (int i = 0; i < filter_set.size(); i++) {
-
             #pragma omp critical
             {
                 M[filter_set[i]] = -1;
             }
-
         }
 
         #pragma omp for
-
         for (int i = 0; i < graph.size(); i++) {
-
             #pragma omp critical
             {
                 T[i] = 0;
@@ -361,37 +355,40 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
     }
 
     // Main computation
-    #pragma omp parallel for
-
-    for (int i = 0; i < filter_set.size(); i++) {
+    for (int i = 0; i < filter_set.size(); i++) { // Outer loop sequential
 
         vector<int> pf; // Thread-local positions
 
-        // Find nodes matching the current filter
-        for (int j = 0; j < graph.size(); j++) {
+        // Parallelize the inner loop
+        #pragma omp parallel
+        {
+            vector<int> thread_local_pf; // Thread-local vector for storing matched nodes
 
-            bool found = false;
+            #pragma omp for nowait
+            for (int j = 0; j < graph.size(); j++) {
+                bool found = false;
 
-            for (int k = 0; k < graph[j].filters.size(); k++) {
-
-                if (graph[j].filters[k] == filter_set[i]) {
-
-                    found = true;
-                    break;
-
+                for (int k = 0; k < graph[j].filters.size(); k++) {
+                    if (graph[j].filters[k] == filter_set[i]) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    thread_local_pf.push_back(j);
                 }
             }
-            if (found) {
 
-                pf.push_back(j);
-
+            // Combine thread-local results into the shared `pf` vector
+            #pragma omp critical
+            {
+                pf.insert(pf.end(), thread_local_pf.begin(), thread_local_pf.end());
             }
         }
 
         // Select random nodes
         vector<int> rf;
         do {
-
             int random_ind = get_random_number(pf.size() - 1);
 
             if (find(rf.begin(), rf.end(), pf[random_ind]) == rf.end()) {
@@ -404,15 +401,25 @@ map<int, int> filteredFindMedoid(vector<graph_node>& graph, int th, vector<int>&
         int min = 100000;
         int p_star = -1;
 
-        for (int r : rf) {
+        #pragma omp parallel
+        {
+            int thread_local_min = 100000;
+            int thread_local_p_star = -1;
 
+            #pragma omp for nowait
+            for (int r = 0; r < rf.size(); r++) {
+                if (T[rf[r]] < thread_local_min) {
+                    thread_local_min = T[rf[r]];
+                    thread_local_p_star = rf[r];
+                }
+            }
+
+            // Combine thread-local results into global minimum
             #pragma omp critical
             {
-                if (T[r] < min) {
-
-                    min = T[r];
-                    p_star = r;
-
+                if (thread_local_min < min) {
+                    min = thread_local_min;
+                    p_star = thread_local_p_star;
                 }
             }
         }

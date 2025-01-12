@@ -7,6 +7,7 @@
 #include <math.h>
 #include <time.h>
 #include <queue>
+#include <limits>
 
 
 #include <assert.h>
@@ -85,7 +86,7 @@ GraphNode find_min_eucl(vector<GraphNode>& p, graph_node& xq, vector<double>& di
     GraphNode p_star = nullptr; // Pointer to the node with minimum distance
     double min_distance = std::numeric_limits<double>::max(); // Initialize minimum distance
 
-    #pragma omp parallel num_threads(4)
+    #pragma omp parallel num_threads(2)
     {
         GraphNode local_p_star = nullptr; // Thread-local minimum node
         double local_min_distance = numeric_limits<double>::max(); // Thread-local minimum distance

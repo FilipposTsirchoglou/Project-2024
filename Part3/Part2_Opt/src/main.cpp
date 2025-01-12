@@ -4,8 +4,10 @@
 #include "../include/vamana.hpp"
 #include "../include/file_operations.hpp"
 #include <unistd.h>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 int main(void) {
 
@@ -22,6 +24,7 @@ int main(void) {
     string DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, METHOD_TYPE;
     int L, R, k, th, L_small, R_small, R_stich, ACTUAL_MEDOIDS, F0_TRICK;
     float a;
+    chrono::high_resolution_clock::time_point start, stop , start_query, stop_query;
 
     read_config_file("config.txt", DATA_FILE, QUERIES_FILE, GRAPH, GRAPH_NAME, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE, ACTUAL_MEDOIDS, F0_TRICK);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
@@ -40,6 +43,7 @@ int main(void) {
     vector<int> filter_set = find_filter_set(nodes);
 
     /*Graph Creation*/
+    start = chrono::high_resolution_clock::now();
     for(int i = 0 ; i < nodes.size() ; i++) {
         graph_node g;
         g.id = i;
@@ -68,6 +72,7 @@ int main(void) {
         if (GRAPH == "NO") {
             /*Creates a new graph and saves it to a .bin file*/
             filteredVamana(graph, a, L, R, filter_set, th, med);
+            stop = chrono::high_resolution_clock::now();
             save_graph(GRAPH_NAME, graph, dummy_med);
         } else if (GRAPH == "YES") {
             /*Reads the graph from a .bin file*/
@@ -77,7 +82,7 @@ int main(void) {
         int count = 0;
         float recall_sum = 0;
         if (METHOD_TYPE == "F1") {
-
+            start_query = chrono::high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 1) {     // Type 1
@@ -113,7 +118,7 @@ int main(void) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
-                
+                    
                     // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
@@ -132,16 +137,24 @@ int main(void) {
                     recall_sum += recall;
                 } 
             }
+            stop_query = chrono::high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 1 queries using filtered vamana: " << avg_recall << endl;
 
-        } else if (METHOD_TYPE == "F0") {
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
 
+            auto duration_queries = duration_cast<seconds>(stop_query - start_query);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
+
+        } else if (METHOD_TYPE == "F0") {
+            start_query = chrono::high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 0) {     // Type 0
-                    cout << "query: " << i <<endl;
+                    //cout << "query: " << i <<endl;
                     count++;
                     
                     // Create and initialize a temmporary graph node
@@ -182,18 +195,6 @@ int main(void) {
                         pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(graph, k_closest_results_id, graph[graph.size() - 1], k, L*2);
                         k_closest = result.first;
                     }
-                    /*vector<int> k_closest_results_id;
-      
-                    for (int j=0 ; j<filter_set.size() ; j++ ) {
-                        vector<int> s_temp;
-                        s_temp.push_back(med[filter_set[j]]);
-                        pair<vector<GraphNode>, vector<GraphNode>> result1 = filteredGreedySearch(graph, s_temp, graph[graph.size() - 1], 1, L);
-                        k_closest_results_id.push_back(result1.first[0]->id);
-                    }          
-
-                    // Run the filtered greedy search to find k closest neighbours
-                    pair<vector<GraphNode>, vector<GraphNode>> result = filteredGreedySearch(graph, k_closest_results_id, graph[graph.size() - 1], k, L*2);
-                    vector<GraphNode> k_closest = result.first;*/
                 
                     graph.erase(graph.end()-1);
 
@@ -203,7 +204,7 @@ int main(void) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
-                
+                    
                     // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
@@ -220,14 +221,23 @@ int main(void) {
                     float recall = (float)same_points / 100.0;
                     cout << "recall: " << recall << endl;
                     recall_sum += recall;
+                    
                 } 
             }
+            stop_query = chrono::high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using filtered vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_query - start_query);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
         }  
     } else if (METHOD_TYPE == "S0" || METHOD_TYPE == "S1") {
-
+            chrono :: high_resolution_clock::time_point start_s0, stop_s0;
         
         if (METHOD_TYPE == "S0") {
 
@@ -248,7 +258,9 @@ int main(void) {
             int med_id = -1;
    
             if (GRAPH == "NO") {
+                start_s0 = chrono::high_resolution_clock::now();
                 vamana(a, L, R, med, graph);
+                stop_s0 = chrono::high_resolution_clock::now();
                 save_graph(GRAPH_NAME, graph, med);
             } else if (GRAPH == "YES") {
                 read_graph(GRAPH_NAME, graph, med_id);
@@ -257,7 +269,7 @@ int main(void) {
             }
             //med = find_medoid(stitched_vamana_graph);
             // At this point the stitched vamana has been created
-
+            start_query = chrono::high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
                 
                 if (queries[i][0] == 0) {    //if it is a type 0 query
@@ -327,9 +339,17 @@ int main(void) {
 
                 }
             } 
+            stop_query = chrono::high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using stitched vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop_s0 - start_s0);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_query - start_query);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
         }
         else if (METHOD_TYPE == "S1") {
             
