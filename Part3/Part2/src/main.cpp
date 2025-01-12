@@ -31,12 +31,13 @@ int main(void) {
 
     vector<vector<float>> nodes;    //all the points of the dataset
     ReadBin(DATA_FILE, 102, nodes);
+    nodes.resize(100000);
 
     vector<vector<float>> queries;  //all the queries
     ReadBin(QUERIES_FILE, 104, queries);
 
     vector<vector<float>> gt;      //groundtruth
-    ReadBin("GroundTruth.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
+    ReadBin("GroundTruth_1m.bin", 101, gt);    //gt has 101 dimensios. gt[0] is the query id and the rest are the 100 closest points
 
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
@@ -100,7 +101,7 @@ int main(void) {
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 1) {     // Type 1
-                    //cout << "query: " << i <<endl;
+                    cout << "query: " << i <<endl;
                     count++;
             
                     graph_node gq;              // Create a temporary graph_node
@@ -147,7 +148,7 @@ int main(void) {
 
                     // Calculate recall
                     float recall = (float)same_points / 100.0;
-                    //cout << "recall: " << recall << endl;
+                    cout << "recall: " << recall << endl;
                     recall_sum += recall;
                     
                 } 

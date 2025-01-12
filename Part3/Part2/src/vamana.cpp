@@ -670,7 +670,7 @@ void filteredVamana(vector<graph_node>& graph, float a, int L, int R, vector<int
 
   //itterate through all the points of the vector in random order
   for (int i = 0 ; i < sigma.size() ; i++) {      
-    //cout << i << endl;
+    cout << i << endl;
     int start_node_id = med[graph[sigma[i]].filters[0]];   //the pos of the medoid of the filter of the current node in the graph vector
    
     vector<int> s = {};  //Holds the ids of the medoids of the fitlers of the current node
