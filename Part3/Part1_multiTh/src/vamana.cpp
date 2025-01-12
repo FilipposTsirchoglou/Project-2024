@@ -208,7 +208,7 @@ void create_random_graph(vector<graph_node>& graph, vector<vector<float>>& all_p
 /*Finds and returns the medoid of the graph*/
 GraphNode find_medoid(std::vector<graph_node>& graph) {
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
 
     cout << "Finding medoid..." << std::endl;
 

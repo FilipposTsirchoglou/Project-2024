@@ -19,8 +19,10 @@
 #include "../include/find_check.hpp"
 #include "../include/vamana.hpp"
 #include "../include/file_operations.hpp"
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 int main(void) {
 
@@ -36,6 +38,7 @@ int main(void) {
     string DATA_FILE, QUERIES_FILE, METHOD_TYPE;
     int L, R, k, th, L_small, R_small, R_stich;
     float a;
+    chrono::high_resolution_clock::time_point start, stop, start_queries, stop_queries;
 
     read_config_file("config.txt", DATA_FILE, QUERIES_FILE, R, L, a, k, th, L_small, R_small, R_stich, METHOD_TYPE);  //method type F0 or F1 means filtered_vamana type 0 or 1 (same as S0,S1 for stitced)
     cout << METHOD_TYPE << endl;
@@ -54,6 +57,7 @@ int main(void) {
     vector<graph_node> graph;
     vector<int> filter_set = find_filter_set(nodes);
 
+    start = high_resolution_clock::now();
     #pragma omp parallel for num_threads(2) schedule(static)
     for (int i = 0; i < nodes.size(); i++) {
         graph_node g;
@@ -74,38 +78,20 @@ int main(void) {
 
     vector<int> how_many_points_by_filter;    // Shows how many points each filter has eg. filter[1] has the numver of filters for the filter 1
 
-    // Pre-allocate the vector to avoid synchronization issues during parallel execution
-    how_many_points_by_filter.resize(filter_set.size(), 0);
-
-    #pragma omp parallel for num_threads(2) schedule(static)
-    for (int i = 0; i < filter_set.size(); i++) { // For every filter
-        int filter_count = 0;
-
-        // Count the occurrences of the current filter in the nodes vector
-        for (int j = 0; j < nodes.size(); j++) {
-            if (nodes[j][0] == filter_set[i]) {
-                filter_count++;
-            }
-        }
-
-        // Safely store the result
-        how_many_points_by_filter[i] = filter_count;
-    }
-
-
     map<int, int> med = filteredFindMedoid(graph, 1, filter_set);   // Has one medoid for every filter
     cout << METHOD_TYPE << endl;
     if (METHOD_TYPE == "F0" || METHOD_TYPE == "F1") {
         // Call Filtered Vamana to return the Filtered Vamana indexing graph
         cout << "in F0 or F1" << endl;  
         vector<graph_node> vamana_filtered = filteredVamana(graph, a, L, R, filter_set, th, med);
+        stop = high_resolution_clock::now();
 
         int count = 0;
         float recall_sum = 0;
 
         if (METHOD_TYPE == "F1") {
             cout << "F1" << endl;
-
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 1) {     // Type 1
@@ -142,7 +128,7 @@ int main(void) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
-                
+                    
                     // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
@@ -158,14 +144,24 @@ int main(void) {
                     // Calculate recall
                     float recall = (float)same_points / 100.0;
                     recall_sum += recall;
+                    
                 } 
             }
+            stop_queries = high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
-            cout << "Average recall for Type 0 queries using filtered vamana: " << avg_recall << endl;
+            cout << "Average recall for Type 1 queries using filtered vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
 
         } else if (METHOD_TYPE == "F0") {
 
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
 
                 if (queries[i][0] == 0) {     // Type 0
@@ -213,7 +209,7 @@ int main(void) {
                             k_closest.push_back(&dummy_node);
                         }
                     }
-                
+                /*
                     // Search the id of the corresponding query in the groundtruth
                     int id=-10;                
                     for (int j=0 ; j<gt.size() ; j++) {
@@ -228,16 +224,24 @@ int main(void) {
 
                     // Calculate recall
                     float recall = (float)same_points / 100.0;
-                    recall_sum += recall;
+                    recall_sum += recall;*/
                 } 
             }
+            stop_queries = high_resolution_clock::now();
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using filtered vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop - start);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
         }  
     } else if (METHOD_TYPE == "S0" || METHOD_TYPE == "S1") {
 
-        
+        chrono::high_resolution_clock::time_point start_s0, stop_s0;
         if (METHOD_TYPE == "S0") {
 
             int count = 0;
@@ -252,12 +256,13 @@ int main(void) {
             }
 
             GraphNode med = NULL;
-
+            start_s0 = high_resolution_clock::now();
             vector<graph_node> stitched_vamana_graph = vamana(all_points, a, L, R, med);
+            stop_s0 = high_resolution_clock::now();
                 
 
             // At this point the stitched vamana has been created
-
+            start_queries = high_resolution_clock::now();
             for (int i=0 ; i<queries.size() ; i++) {
                 
                 if (queries[i][0] == 0) {
@@ -331,10 +336,18 @@ int main(void) {
                     recall_sum += recall;
 
                 }
-            } 
+            }
+            stop_queries = high_resolution_clock::now(); 
 
             float avg_recall =(float)(recall_sum / count);
             cout << "Average recall for Type 0 queries using stitched vamana: " << avg_recall << endl;
+
+            auto duration = duration_cast<seconds>(stop_s0 - start_s0);
+            cout << "Index creation: " << duration.count() << " seconds" << endl;
+
+            auto duration_queries = duration_cast<seconds>(stop_queries - start_queries);
+            cout << "Queries: " << (duration_queries.count())<< " seconds" << endl;
+            cout << "Queries per second: " << queries.size() / (double)(duration_queries.count())<< endl;
         }
         else if (METHOD_TYPE == "S1") {
             
