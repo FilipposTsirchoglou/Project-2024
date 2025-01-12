@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 #include <queue>
+#include <limits>
 
 
 #include <assert.h>
@@ -17,7 +18,7 @@ using namespace std;
 /*Returns a vector with the difference of the k-approx NNs and the visited nodes*/
 vector<GraphNode> vectors_difference(vector<GraphNode>& l_closest, vector<GraphNode>& visited) {  
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
     
     // A vector to store the final difference
     std::vector<GraphNode> difference;
@@ -97,7 +98,7 @@ int get_random_number(int max) {
 /*Returns a pointer to the graph_node that has the min euclidean distance from xq*/
 GraphNode find_min_eucl(std::vector<GraphNode>& p, graph_node& xq) {
 
-    omp_set_num_threads(4);
+    omp_set_num_threads(2);
 
     GraphNode* min_node = nullptr;
     float min_distance = numeric_limits<float>::max();
