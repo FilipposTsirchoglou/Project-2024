@@ -1,7 +1,0 @@
-DATASET = test
-QUERIES = test
-GROUNDTRUTH = test
-R = 0
-L = 0
-a = 0
-k = 0
